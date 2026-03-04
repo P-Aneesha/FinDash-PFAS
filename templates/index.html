@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>FinDash - Dashboard</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FinDash">
+    <link rel="apple-touch-icon" href="/static/icon-192.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 FinDash-PFAS</h1>
+            <div class="header-right">
+                <span id="username"></span>
+                <button onclick="toggleTheme()" class="btn-theme">🌙</button>
+                <button onclick="logout()" class="btn-logout">Logout</button>
+            </div>
+        </header>
+        
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showPage('dashboard')">📊 Dashboard</button>
+            <button class="nav-tab" onclick="showPage('transactions')">📋 Transactions</button>
+            <button class="nav-tab" onclick="showPage('goals')">🎯 Goals</button>
+            <button class="nav-tab" onclick="showPage('budgets')">💰 Budgets</button>
+        </div>
+        
+        <!-- Dashboard Page -->
+        <div id="dashboardPage" class="page active">
+            <div class="summary-cards">
+                <div class="card income">
+                    <h3>Total Income</h3>
+                    <p id="totalIncome">₹0</p>
+                </div>
+                <div class="card expense">
+                    <h3>Total Expenses</h3>
+                    <p id="totalExpenses">₹0</p>
+                </div>
+                <div class="card balance">
+                    <h3>Balance</h3>
+                    <p id="balance">₹0</p>
+                </div>
+                <div class="card health">
+                    <h3>Health Score</h3>
+                    <p id="health">0</p>
+                </div>
+            </div>
+            
+            <div class="stats-section">
+                <h2>📈 Financial Insights</h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-label">Total Transactions</div>
+                        <div class="stat-value" id="statTrans">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">💵</div>
+                        <div class="stat-label">Avg Monthly Income</div>
+                        <div class="stat-value" id="statAvgInc">₹0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">💸</div>
+                        <div class="stat-label">Avg Monthly Expenses</div>
+                        <div class="stat-value" id="statAvgExp">₹0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">🏆</div>
+                        <div class="stat-label">Top Category</div>
+                        <div class="stat-value" id="statTopCat">N/A</div>
+                        <div class="stat-sub" id="statTopAmt">₹0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-label">Days Tracking</div>
+                        <div class="stat-value" id="statDays">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-label">Active Goals</div>
+                        <div class="stat-value" id="statGoals">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-label">Active Budgets</div>
+                        <div class="stat-value" id="statBudgets">0</div>
+                    </div>
+                    <div class="stat-box highlight">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-label">Month Change</div>
+                        <div class="stat-value" id="statMoM">0%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recommendations" id="recommendations"></div>
+            
+            <div class="forms-section">
+                <div class="form-box">
+                    <h3>Add Income</h3>
+                    <form id="incomeForm" onsubmit="addIncome(event)">
+                        <input type="text" id="incSource" placeholder="Source (e.g., Salary)" required>
+                        <input type="number" id="incAmount" placeholder="Amount" step="0.01" required>
+                        <input type="date" id="incDate" required>
+                        <button type="submit">Add Income</button>
+                    </form>
+                </div>
+                
+                <div class="form-box">
+                    <h3>Add Expense</h3>
+                    <form id="expenseForm" onsubmit="addExpense(event)">
+                        <select id="expCat" required>
+                            <option value="">Select Category</option>
+                            <option value="Food">Food</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Bills">Bills</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Education">Education</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <input type="number" id="expAmount" placeholder="Amount" step="0.01" required>
+                        <input type="text" id="expDesc" placeholder="Description (optional)">
+                        <input type="date" id="expDate" required>
+                        <button type="submit">Add Expense</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="charts-section">
+                <div class="chart-box">
+                    <h3>Income vs Expenses</h3>
+                    <div id="chart1"></div>
+                </div>
+                <div class="chart-box">
+                    <h3>Expenses by Category</h3>
+                    <div id="chart2"></div>
+                </div>
+                <div class="chart-box full-width">
+                    <h3>Monthly Trends (Last 6 Months)</h3>
+                    <div id="chart3"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Transactions Page -->
+        <div id="transactionsPage" class="page">
+            <h2>📋 Transaction History</h2>
+            
+            <div class="controls">
+                <input type="text" id="searchTrans" placeholder="🔍 Search..." onkeyup="searchTransactions()">
+                <select id="filterType" onchange="searchTransactions()">
+                    <option value="all">All Transactions</option>
+                    <option value="Income">Income Only</option>
+                    <option value="Expense">Expenses Only</option>
+                </select>
+                <button onclick="exportCSV()" class="btn-export">📥 Export CSV</button>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transList"></tbody>
+                </table>
+            </div>
+            
+            <div class="transaction-summary">
+                <div class="summary-item">
+                    <span>Total Income:</span>
+                    <span id="sumIncome" class="type-income">₹0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Total Expenses:</span>
+                    <span id="sumExpense" class="type-expense">₹0</span>
+                </div>
+                <div class="summary-item">
+                    <span>Net Balance:</span>
+                    <span id="sumBalance">₹0</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Goals Page -->
+        <div id="goalsPage" class="page">
+            <h2>🎯 Future Purchase Planner</h2>
+            
+            <div class="form-box">
+                <h3>Create New Goal</h3>
+                <form id="goalForm" onsubmit="addGoal(event)">
+                    <input type="text" id="goalName" placeholder="Goal Name (e.g., Buy Laptop)" required>
+                    <input type="number" id="goalAmount" placeholder="Target Amount (₹)" step="0.01" required>
+                    <input type="number" id="goalSavings" placeholder="Current Savings (₹)" step="0.01" value="0">
+                    <input type="date" id="goalDate" placeholder="Target Date" required>
+                    <button type="submit">Add Goal</button>
+                </form>
+            </div>
+            
+            <div id="goalsList"></div>
+        </div>
+        
+        <!-- Budgets Page -->
+        <div id="budgetsPage" class="page">
+            <h2>💰 Budget Management</h2>
+            
+            <div id="budgetAlerts"></div>
+            
+            <div class="form-box">
+                <h3>Set Category Budget</h3>
+                <form id="budgetForm" onsubmit="setBudget(event)">
+                    <select id="budCat" required>
+                        <option value="">Select Category</option>
+                        <option value="Food">Food</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Bills">Bills</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Education">Education</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="number" id="budLimit" placeholder="Monthly Limit (₹)" step="0.01" required>
+                    <button type="submit">Set Budget</button>
+                </form>
+            </div>
+            
+            <div id="budgetList"></div>
+        </div>
+    </div>
+    
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- PWA Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/service-worker.js')
+                    .then(reg => console.log('✅ Service Worker registered'))
+                    .catch(err => console.log('❌ Service Worker failed:', err));
+            });
+        }
+        
+        // Install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install button (optional)
+            const installBtn = document.createElement('button');
+            installBtn.textContent = '📱 Install App';
+            installBtn.style.cssText = 'position:fixed;bottom:20px;right:20px;padding:15px 25px;background:#667eea;color:white;border:none;border-radius:50px;font-weight:bold;cursor:pointer;z-index:1000;box-shadow:0 4px 15px rgba(0,0,0,0.3);';
+            installBtn.onclick = () => {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User installed the app');
+                    }
+                    deferredPrompt = null;
+                    installBtn.remove();
+                });
+            };
+            document.body.appendChild(installBtn);
+        });
+    </script>
+
+</body>
+</html>
