@@ -437,7 +437,44 @@ def get_trends():
     
     conn.close()
     return jsonify({'months': months, 'income': inc_data, 'expenses': exp_data, 'savings': sav_data})
-
+@app.route('/api/sms-transaction', methods=['POST'])
+def sms_transaction():
+    """Auto-add transaction from SMS"""
+    try:
+        data = request.get_json()
+        trans_type = data.get('type')
+        amount = float(data.get('amount'))
+        description = data.get('description', 'Auto-added from SMS')
+        category = data.get('category', 'Others')
+        date = data.get('date')
+        
+        conn = get_db()
+        
+        if trans_type == 'income':
+            conn.execute('''
+                INSERT INTO income (source, amount, date, user_id)
+                VALUES (?, ?, ?, 1)
+            ''', (description, amount, date))
+        else:
+            import datetime
+            date_obj = datetime.datetime.strptime(date, '%Y-%m-%d')
+            day_type = 'weekend' if date_obj.weekday() >= 5 else 'weekday'
+            
+            conn.execute('''
+                INSERT INTO expenses (category, amount, description, date, day_type, user_id)
+                VALUES (?, ?, ?, ?, ?, 1)
+            ''', (category, amount, description, date, day_type))
+        
+        conn.commit()
+        conn.close()
+        
+        print(f"✅ SMS Transaction added: {trans_type} ₹{amount} - {description}")
+        
+        return jsonify({'success': True, 'message': 'Transaction added'}), 200
+        
+    except Exception as e:
+        print(f"❌ SMS Transaction error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 if __name__ == '__main__':
     print("🚀 FinDash starting...")
     print("📍 Open: http://localhost:5000")
