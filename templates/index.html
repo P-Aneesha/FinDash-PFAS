@@ -113,6 +113,7 @@
                         <input type="text" id="incSource" placeholder="Source (e.g., Salary)" required>
                         <input type="number" id="incAmount" placeholder="Amount" step="0.01" required>
                         <input type="date" id="incDate" required>
+                        <button type="button" class="sms-btn" onclick="showSmsModal()">📱 Add from SMS</button>
                         <button type="submit">Add Income</button>
                     </form>
                 </div>
@@ -134,6 +135,8 @@
                         <input type="number" id="expAmount" placeholder="Amount" step="0.01" required>
                         <input type="text" id="expDesc" placeholder="Description (optional)">
                         <input type="date" id="expDate" required>
+                        <button type="button" class="sms-btn" onclick="showSmsModal()">📱 Add from SMS</button>
+
                         <button type="submit">Add Expense</button>
                     </form>
                 </div>
@@ -284,6 +287,17 @@
             document.body.appendChild(installBtn);
         });
     </script>
+<!-- SMS Modal -->
+    <div id="smsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeSmsModal()">&times;</span>
+            <h2>📱 Add Transaction from SMS</h2>
+            <p>Paste your bank SMS below:</p>
+            <textarea id="smsText" rows="4" placeholder="Example: HDFCBK: Rs.500.00 debited from A/C XX1234 on 07-Mar-26 at AMAZON INDIA"></textarea>
+            <button onclick="parseSms()" class="add-btn">Parse SMS</button>
+            <div id="smsResult" style="margin-top: 20px;"></div>
+        </div>
+    </div>
 
 </body>
 </html>

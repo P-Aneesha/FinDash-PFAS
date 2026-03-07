@@ -474,6 +474,72 @@ def sms_transaction():
     except Exception as e:
         print(f"❌ SMS error: {str(e)}")
         return jsonify({'success': False}), 500
+@app.route('/api/parse-sms', methods=['POST'])
+def parse_sms():
+    """Parse bank SMS and extract transaction details"""
+    try:
+        data = request.get_json()
+        sms_text = data.get('sms', '')
+        
+        if not sms_text:
+            return jsonify({'success': False, 'error': 'No SMS text provided'}), 400
+        
+        # Determine transaction type
+        lower_sms = sms_text.lower()
+        if 'debited' in lower_sms or 'withdrawn' in lower_sms or 'paid' in lower_sms:
+            trans_type = 'expense'
+        elif 'credited' in lower_sms or 'deposited' in lower_sms or 'received' in lower_sms:
+            trans_type = 'income'
+        else:
+            return jsonify({'success': False, 'error': 'Could not determine transaction type'}), 400
+        
+        # Extract amount
+        import re
+        amount_pattern = r'(?:rs\.?|inr|₹)\s*([0-9,]+\.?[0-9]*)'
+        amount_match = re.search(amount_pattern, sms_text, re.IGNORECASE)
+        
+        if not amount_match:
+            return jsonify({'success': False, 'error': 'Could not extract amount'}), 400
+        
+        amount = float(amount_match.group(1).replace(',', ''))
+        
+        # Extract merchant/description
+        merchant_pattern = r'(?:at|to)\s+([A-Z][A-Za-z\s&]+?)(?:on|\.|avl|upi|info|ref)'
+        merchant_match = re.search(merchant_pattern, sms_text, re.IGNORECASE)
+        
+        if merchant_match:
+            description = merchant_match.group(1).strip()
+        else:
+            description = 'Bank Transaction'
+        
+        # Auto-categorize
+        desc_lower = description.lower()
+        if 'amazon' in desc_lower or 'flipkart' in desc_lower or 'shop' in desc_lower:
+            category = 'Shopping'
+        elif 'swiggy' in desc_lower or 'zomato' in desc_lower or 'food' in desc_lower:
+            category = 'Food'
+        elif 'uber' in desc_lower or 'ola' in desc_lower or 'metro' in desc_lower:
+            category = 'Transportation'
+        elif 'salary' in desc_lower or 'transfer' in desc_lower:
+            category = 'Salary'
+        else:
+            category = 'Others'
+        
+        # Get current date
+        from datetime import datetime
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        
+        return jsonify({
+            'success': True,
+            'type': trans_type,
+            'amount': amount,
+            'description': description,
+            'category': category,
+            'date': current_date
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 if __name__ == '__main__':
     print("🚀 FinDash starting...")
     print("📍 Open: http://localhost:5000")

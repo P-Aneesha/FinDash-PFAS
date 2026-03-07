@@ -559,3 +559,104 @@ function exportCSV() {
     
     alert('📥 CSV exported successfully!');
 }
+// SMS Modal Functions
+function showSmsModal() {
+    document.getElementById('smsModal').style.display = 'block';
+}
+
+function closeSmsModal() {
+    document.getElementById('smsModal').style.display = 'none';
+    document.getElementById('smsText').value = '';
+    document.getElementById('smsResult').innerHTML = '';
+}
+
+async function parseSms() {
+    const smsText = document.getElementById('smsText').value.trim();
+    
+    if (!smsText) {
+        alert('Please paste your SMS first!');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/parse-sms', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({sms: smsText})
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Show parsed data
+            const resultDiv = document.getElementById('smsResult');
+            resultDiv.innerHTML = `
+                <div style="border: 2px solid #4CAF50; padding: 15px; border-radius: 8px; background: #f0f9ff;">
+                    <h3>✅ SMS Parsed Successfully!</h3>
+                    <p><strong>Type:</strong> ${data.type === 'income' ? '💰 Income' : '💸 Expense'}</p>
+                    <p><strong>Amount:</strong> ₹${data.amount}</p>
+                    <p><strong>Description:</strong> ${data.description}</p>
+                    <p><strong>Category:</strong> ${data.category}</p>
+                    <p><strong>Date:</strong> ${data.date}</p>
+                    <button onclick="addParsedTransaction('${data.type}', ${data.amount}, '${data.description}', '${data.category}', '${data.date}')" class="add-btn">
+                        ✅ Add This Transaction
+                    </button>
+                </div>
+            `;
+        } else {
+            alert('Error: ' + data.error);
+        }
+    } catch (error) {
+        alert('Failed to parse SMS: ' + error.message);
+    }
+}
+
+async function addParsedTransaction(type, amount, description, category, date) {
+    try {
+        let response;
+        
+        if (type === 'income') {
+            response = await fetch('/add_income', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    source: description,
+                    amount: amount,
+                    date: date
+                })
+            });
+        } else {
+            response = await fetch('/add_expense', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    category: category,
+                    amount: amount,
+                    description: description,
+                    date: date,
+                    day_type: new Date(date).getDay() >= 5 ? 'weekend' : 'weekday'
+                })
+            });
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('✅ Transaction added successfully!');
+            closeSmsModal();
+            loadDashboard(); // Refresh dashboard
+        } else {
+            alert('Error adding transaction');
+        }
+    } catch (error) {
+        alert('Failed to add transaction: ' + error.message);
+    }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('smsModal');
+    if (event.target == modal) {
+        closeSmsModal();
+    }
+}
