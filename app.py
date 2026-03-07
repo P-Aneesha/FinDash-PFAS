@@ -444,7 +444,7 @@ def sms_transaction():
         data = request.get_json()
         trans_type = data.get('type')
         amount = float(data.get('amount'))
-        description = data.get('description', 'Auto-added from SMS')
+        description = data.get('description', 'Auto from SMS')
         category = data.get('category', 'Others')
         date = data.get('date')
         
@@ -468,13 +468,12 @@ def sms_transaction():
         conn.commit()
         conn.close()
         
-        print(f"✅ SMS Transaction added: {trans_type} ₹{amount} - {description}")
-        
-        return jsonify({'success': True, 'message': 'Transaction added'}), 200
+        print(f"✅ SMS: {trans_type} ₹{amount} - {description}")
+        return jsonify({'success': True}), 200
         
     except Exception as e:
-        print(f"❌ SMS Transaction error: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+        print(f"❌ SMS error: {str(e)}")
+        return jsonify({'success': False}), 500
 if __name__ == '__main__':
     print("🚀 FinDash starting...")
     print("📍 Open: http://localhost:5000")
