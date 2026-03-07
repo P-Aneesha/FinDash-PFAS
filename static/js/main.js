@@ -644,7 +644,7 @@ async function addParsedTransaction(type, amount, description, category, date) {
         if (data.success) {
             alert('✅ Transaction added successfully!');
             closeSmsModal();
-            loadDashboard(); // Refresh dashboard
+            location.reload(); // Refresh the entire page
         } else {
             alert('Error adding transaction');
         }
