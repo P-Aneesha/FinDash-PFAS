@@ -616,7 +616,7 @@ async function addParsedTransaction(type, amount, description, category, date) {
         let response;
         
         if (type === 'income') {
-            response = await fetch('/add_income', {
+            response = await fetch('/api/income', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
@@ -626,7 +626,7 @@ async function addParsedTransaction(type, amount, description, category, date) {
                 })
             });
         } else {
-            response = await fetch('/add_expense', {
+            response = await fetch('/api/expense', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
@@ -650,13 +650,5 @@ async function addParsedTransaction(type, amount, description, category, date) {
         }
     } catch (error) {
         alert('Failed to add transaction: ' + error.message);
-    }
-}
-
-// Close modal when clicking outside
-window.onclick = function(event) {
-    const modal = document.getElementById('smsModal');
-    if (event.target == modal) {
-        closeSmsModal();
     }
 }
