@@ -475,6 +475,7 @@ def sms_transaction():
         print(f"❌ SMS error: {str(e)}")
         return jsonify({'success': False}), 500
 @app.route('/api/parse-sms', methods=['POST'])
+@login_required
 def parse_sms():
     """Parse bank SMS and extract transaction details"""
     try:
