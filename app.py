@@ -111,50 +111,31 @@ def set_budget():
     """Set or update budget for a category"""
     try:
         data = request.get_json()
+        category = data.get('category')
         
-        if not data:
-            return jsonify({'success': False, 'error': 'No data received'}), 400
+        # Accept BOTH 'amount' and 'monthly_limit' for compatibility
+        amount = data.get('amount') or data.get('monthly_limit')
         
-        category = data.get('category', '').strip()
-        amount_str = data.get('amount', '')
+        if not category or not amount:
+            return jsonify({'success': False, 'error': 'Category and amount required'}), 400
         
-        print(f"DEBUG: Received category={category}, amount={amount_str}")
-        
-        if not category:
-            return jsonify({'success': False, 'error': 'Category is required'}), 400
-        
-        try:
-            amount = float(amount_str)
-        except (ValueError, TypeError):
-            return jsonify({'success': False, 'error': 'Invalid amount'}), 400
+        amount = float(amount)
         
         if amount <= 0:
             return jsonify({'success': False, 'error': 'Amount must be positive'}), 400
         
         user_id = session.get('user_id')
         conn = get_db()
+        c = conn.cursor()
         
-        # Check if budget already exists for this category
-        existing = conn.execute('''
-            SELECT id FROM budgets 
-            WHERE category = ? AND user_id = ?
-        ''', (category, user_id)).fetchone()
+        # Delete old budget if exists
+        c.execute('DELETE FROM budgets WHERE category = ? AND user_id = ?', (category, user_id))
         
-        if existing:
-            # Update existing budget - FIXED: use monthly_limit column
-            conn.execute('''
-                UPDATE budgets 
-                SET monthly_limit = ? 
-                WHERE category = ? AND user_id = ?
-            ''', (amount, category, user_id))
-            print(f"✅ Updated budget for {category}")
-        else:
-            # Insert new budget - FIXED: use monthly_limit column
-            conn.execute('''
-                INSERT INTO budgets (category, monthly_limit, user_id)
-                VALUES (?, ?, ?)
-            ''', (category, amount, user_id))
-            print(f"✅ Inserted new budget for {category}")
+        # Insert new budget
+        c.execute('''
+            INSERT INTO budgets (category, monthly_limit, user_id)
+            VALUES (?, ?, ?)
+        ''', (category, amount, user_id))
         
         conn.commit()
         conn.close()
@@ -163,10 +144,7 @@ def set_budget():
         
     except Exception as e:
         print(f"❌ Budget error: {str(e)}")
-        import traceback
-        traceback.print_exc()
         return jsonify({'success': False, 'error': str(e)}), 500
-
 @app.route('/api/dashboard')
 @login_required
 def dashboard():
