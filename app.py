@@ -110,11 +110,25 @@ def set_budget():
     """Set or update budget for a category"""
     try:
         data = request.get_json()
-        category = data.get('category')
-        amount = float(data.get('amount', 0))
         
-        if not category or amount <= 0:
-            return jsonify({'success': False, 'error': 'Invalid category or amount'}), 400
+        if not data:
+            return jsonify({'success': False, 'error': 'No data received'}), 400
+        
+        category = data.get('category', '').strip()
+        amount_str = data.get('amount', '')
+        
+        print(f"DEBUG: Received category={category}, amount={amount_str}")
+        
+        if not category:
+            return jsonify({'success': False, 'error': 'Category is required'}), 400
+        
+        try:
+            amount = float(amount_str)
+        except (ValueError, TypeError):
+            return jsonify({'success': False, 'error': 'Invalid amount'}), 400
+        
+        if amount <= 0:
+            return jsonify({'success': False, 'error': 'Amount must be positive'}), 400
         
         user_id = session.get('user_id')
         conn = get_db()
@@ -126,18 +140,20 @@ def set_budget():
         ''', (category, user_id)).fetchone()
         
         if existing:
-            # Update existing budget
+            # Update existing budget - FIXED: use monthly_limit column
             conn.execute('''
                 UPDATE budgets 
-                SET amount = ? 
+                SET monthly_limit = ? 
                 WHERE category = ? AND user_id = ?
             ''', (amount, category, user_id))
+            print(f"✅ Updated budget for {category}")
         else:
-            # Insert new budget
+            # Insert new budget - FIXED: use monthly_limit column
             conn.execute('''
-                INSERT INTO budgets (category, amount, user_id)
+                INSERT INTO budgets (category, monthly_limit, user_id)
                 VALUES (?, ?, ?)
             ''', (category, amount, user_id))
+            print(f"✅ Inserted new budget for {category}")
         
         conn.commit()
         conn.close()
@@ -145,7 +161,9 @@ def set_budget():
         return jsonify({'success': True, 'message': 'Budget set successfully'}), 200
         
     except Exception as e:
-        print(f"Budget error: {str(e)}")
+        print(f"❌ Budget error: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/dashboard')
@@ -254,6 +272,7 @@ def del_budget(bid):
     conn.commit()
     conn.close()
     return jsonify({'success': True})
+
 @app.route('/api/goal', methods=['POST'])
 @login_required
 def add_goal():
@@ -464,6 +483,7 @@ def get_trends():
     
     conn.close()
     return jsonify({'months': months, 'income': inc_data, 'expenses': exp_data, 'savings': sav_data})
+
 @app.route('/api/sms-transaction', methods=['POST'])
 def sms_transaction():
     """Auto-add transaction from SMS"""
@@ -501,6 +521,7 @@ def sms_transaction():
     except Exception as e:
         print(f"❌ SMS error: {str(e)}")
         return jsonify({'success': False}), 500
+
 @app.route('/api/parse-sms', methods=['POST'])
 @login_required
 def parse_sms():
@@ -568,6 +589,7 @@ def parse_sms():
         
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+
 if __name__ == '__main__':
     print("🚀 FinDash starting...")
     print("📍 Open: http://localhost:5000")
