@@ -362,10 +362,10 @@ async function addExpense(e) {
 async function setBudget(e) {
     e.preventDefault();
     
-    const category = document.getElementById('budCat').value;
-    const amount = parseFloat(document.getElementById('budLimit').value);
+    const category = document.getElementById('budgetCategory').value;
+    const amount = parseFloat(document.getElementById('budgetAmount').value);
     
-    console.log('Budget data:', {category, amount}); // DEBUG
+    console.log('Budget data:', {category, amount});
     
     if (!category || !amount || amount <= 0) {
         alert('Please select a category and enter a valid amount');
@@ -377,23 +377,28 @@ async function setBudget(e) {
         amount: amount
     };
     
-    const res = await fetch('/api/budget', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
-    });
-    
-    const result = await res.json();
-    console.log('Server response:', result); // DEBUG
-    
-    if (res.ok && result.success) {
-        alert('✅ Budget set!');
-        document.getElementById('budgetForm').reset();
-        loadStatistics();
-        loadBudgetAlerts();
-        loadBudgets();
-    } else {
-        alert('❌ Error: ' + (result.error || 'Unknown error'));
+    try {
+        const res = await fetch('/api/budget', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        
+        const result = await res.json();
+        console.log('Server response:', result);
+        
+        if (res.ok && result.success) {
+            alert('✅ Budget set successfully!');
+            document.getElementById('budgetForm').reset();
+            loadStatistics();
+            loadBudgetAlerts();
+            loadBudgets();
+        } else {
+            alert('❌ Error: ' + (result.error || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Budget error:', error);
+        alert('❌ Failed to set budget: ' + error.message);
     }
 }
 async function addGoal(e) {
