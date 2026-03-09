@@ -362,9 +362,19 @@ async function addExpense(e) {
 async function setBudget(e) {
     e.preventDefault();
     
+    const category = document.getElementById('budCat').value;
+    const amount = parseFloat(document.getElementById('budLimit').value);
+    
+    console.log('Budget data:', {category, amount}); // DEBUG
+    
+    if (!category || !amount || amount <= 0) {
+        alert('Please select a category and enter a valid amount');
+        return;
+    }
+    
     const data = {
-        category: document.getElementById('budCat').value,
-        amount: parseFloat(document.getElementById('budLimit').value)  // ✅ CORRECT
+        category: category,
+        amount: amount
     };
     
     const res = await fetch('/api/budget', {
@@ -373,17 +383,19 @@ async function setBudget(e) {
         body: JSON.stringify(data)
     });
     
-    if (res.ok) {
+    const result = await res.json();
+    console.log('Server response:', result); // DEBUG
+    
+    if (res.ok && result.success) {
         alert('✅ Budget set!');
         document.getElementById('budgetForm').reset();
         loadStatistics();
         loadBudgetAlerts();
         loadBudgets();
     } else {
-        alert('❌ Error setting budget');
+        alert('❌ Error: ' + (result.error || 'Unknown error'));
     }
 }
-
 async function addGoal(e) {
     e.preventDefault();
     
