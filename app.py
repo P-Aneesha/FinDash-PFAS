@@ -111,18 +111,34 @@ def set_budget():
     """Set or update budget for a category"""
     try:
         data = request.get_json()
-        category = data.get('category')
-        amount = data.get('amount') or data.get('monthly_limit')
         
-        if not category or not amount:
-            return jsonify({'success': False, 'error': 'Category and amount required'}), 400
+        if not data:
+            return jsonify({'success': False, 'error': 'No data received'}), 400
         
-        amount = float(amount)
+        category = data.get('category', '').strip()
+        amount = data.get('amount')
+        
+        print(f"DEBUG Budget: category={category}, amount={amount}")
+        
+        if not category:
+            return jsonify({'success': False, 'error': 'Category is required'}), 400
+        
+        if not amount:
+            return jsonify({'success': False, 'error': 'Amount is required'}), 400
+        
+        try:
+            amount = float(amount)
+        except (ValueError, TypeError):
+            return jsonify({'success': False, 'error': 'Invalid amount format'}), 400
         
         if amount <= 0:
             return jsonify({'success': False, 'error': 'Amount must be positive'}), 400
         
         user_id = session.get('user_id')
+        
+        if not user_id:
+            return jsonify({'success': False, 'error': 'Not logged in'}), 401
+        
         conn = get_db()
         c = conn.cursor()
         
@@ -132,6 +148,7 @@ def set_budget():
         
         if existing:
             # UPDATE existing budget
+            print(f"Updating existing budget for {category}")
             c.execute('''
                 UPDATE budgets 
                 SET monthly_limit = ? 
@@ -139,6 +156,7 @@ def set_budget():
             ''', (amount, category, user_id))
         else:
             # INSERT new budget
+            print(f"Creating new budget for {category}")
             c.execute('''
                 INSERT INTO budgets (category, monthly_limit, user_id)
                 VALUES (?, ?, ?)
@@ -147,11 +165,16 @@ def set_budget():
         conn.commit()
         conn.close()
         
+        print(f"✅ Budget set successfully: {category} = ₹{amount}")
         return jsonify({'success': True, 'message': 'Budget set successfully'}), 200
         
     except Exception as e:
         print(f"❌ Budget error: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500@app.route('/api/dashboard')
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/dashboard')
 @login_required
 def dashboard():
     conn = get_db()
@@ -488,8 +511,7 @@ def sms_transaction():
                 VALUES (?, ?, ?, 1)
             ''', (description, amount, date))
         else:
-            import datetime
-            date_obj = datetime.datetime.strptime(date, '%Y-%m-%d')
+            date_obj = datetime.strptime(date, '%Y-%m-%d')
             day_type = 'weekend' if date_obj.weekday() >= 5 else 'weekday'
             
             conn.execute('''
@@ -560,7 +582,6 @@ def parse_sms():
             category = 'Others'
         
         # Get current date
-        from datetime import datetime
         current_date = datetime.now().strftime('%Y-%m-%d')
         
         return jsonify({

@@ -359,46 +359,72 @@ async function addExpense(e) {
     }
 }
 
-async function setBudget(e) {
-    e.preventDefault();
+async function setBudget() {
+    const categoryElem = document.getElementById('budgetCategory');
+    const amountElem = document.getElementById('budgetAmount');
     
-    const category = document.getElementById('budgetCategory').value;
-    const amount = parseFloat(document.getElementById('budgetAmount').value);
-    
-    console.log('Budget data:', {category, amount});
-    
-    if (!category || !amount || amount <= 0) {
-        alert('Please select a category and enter a valid amount');
+    if (!categoryElem || !amountElem) {
+        alert('❌ Form elements not found!');
+        console.error('budgetCategory element:', categoryElem);
+        console.error('budgetAmount element:', amountElem);
         return;
     }
     
-    const data = {
-        category: category,
-        amount: amount
-    };
+    const category = categoryElem.value;
+    const amount = parseFloat(amountElem.value);
+    
+    console.log('Setting budget:', {category, amount});
+    
+    if (!category) {
+        alert('⚠️ Please select a category');
+        return;
+    }
+    
+    if (!amount || amount <= 0) {
+        alert('⚠️ Please enter a valid amount');
+        return;
+    }
     
     try {
-        const res = await fetch('/api/budget', {
+        const response = await fetch('/api/budget', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                category: category,
+                amount: amount
+            })
         });
         
-        const result = await res.json();
-        console.log('Server response:', result);
+        console.log('Response status:', response.status);
         
-        if (res.ok && result.success) {
+        const contentType = response.headers.get('content-type');
+        console.log('Content-Type:', contentType);
+        
+        if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            console.error('Non-JSON response:', text.substring(0, 200));
+            alert('❌ Server error: Expected JSON but got HTML. You might be logged out!');
+            return;
+        }
+        
+        const data = await response.json();
+        console.log('Response data:', data);
+        
+        if (data.success) {
             alert('✅ Budget set successfully!');
-            document.getElementById('budgetForm').reset();
+            categoryElem.value = '';
+            amountElem.value = '';
             loadStatistics();
             loadBudgetAlerts();
             loadBudgets();
         } else {
-            alert('❌ Error: ' + (result.error || 'Unknown error'));
+            alert('❌ Error: ' + (data.error || 'Unknown error'));
         }
     } catch (error) {
         console.error('Budget error:', error);
-        alert('❌ Failed to set budget: ' + error.message);
+        alert('❌ Failed: ' + error.message);
     }
 }
 async function addGoal(e) {

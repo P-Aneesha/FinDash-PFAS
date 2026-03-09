@@ -221,7 +221,7 @@
             <div id="goalsList"></div>
         </div>
         
-      <!-- Budgets Page -->
+     <!-- Budgets Page -->
 <div id="budgetsPage" class="page">
     <h2>💰 Budget Management</h2>
     
@@ -229,7 +229,7 @@
     
     <div class="form-box">
         <h3>Set Category Budget</h3>
-        <form id="budgetForm" onsubmit="setBudget(event)">
+        <form id="budgetForm" onsubmit="return false;">
             <select id="budgetCategory" required>
                 <option value="">Select Category</option>
                 <option value="Food">Food</option>
@@ -242,7 +242,7 @@
                 <option value="Other">Other</option>
             </select>
             <input type="number" id="budgetAmount" placeholder="Monthly Limit (₹)" step="0.01" required>
-            <button type="submit">Set Budget</button>
+            <button type="button" onclick="setBudget()">Set Budget</button>
         </form>
     </div>
     
