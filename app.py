@@ -1,13 +1,26 @@
 from flask import Flask, render_template, request, jsonify, session, redirect
 from flask_bcrypt import Bcrypt
+from flask_mail import Mail, Message
 from functools import wraps
 import sqlite3
+import secrets
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
-app.secret_key = 'change-this-secret-key'
-bcrypt = Bcrypt(app)
+app.secret_key = 'change-this-secret-key-to-something-random-and-secure'
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
+# Email configuration (Gmail)
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'your-email@gmail.com'  # ⚠️ CHANGE THIS
+app.config['MAIL_PASSWORD'] = 'your-app-password-here'  # ⚠️ CHANGE THIS (use Gmail App Password)
+app.config['MAIL_DEFAULT_SENDER'] = 'your-email@gmail.com'  # ⚠️ CHANGE THIS
+
+bcrypt = Bcrypt(app)
+mail = Mail(app)
 def get_db():
     conn = sqlite3.connect('database/finance.db', timeout=30.0, check_same_thread=False)
     conn.row_factory = sqlite3.Row
@@ -57,10 +70,13 @@ def login():
     conn.close()
     
     if user and bcrypt.check_password_hash(user['password_hash'], data['password']):
+        session.permanent = True  # Make session last longer
         session['user_id'] = user['id']
         session['username'] = user['username']
         return jsonify({'success': True})
-    return jsonify({'success': False, 'message': 'Invalid'}), 401
+    
+    print(f"❌ Login failed for username: {data.get('username')}")  # Debug
+    return jsonify({'success': False, 'message': 'Invalid username or password'}), 401
 
 @app.route('/api/logout', methods=['POST'])
 def logout():
@@ -595,7 +611,146 @@ def parse_sms():
         
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+@app.route('/api/forgot-password', methods=['POST'])
+def forgot_password():
+    """Send password reset email"""
+    try:
+        data = request.json
+        email = data.get('email', '').strip()
+        
+        if not email:
+            return jsonify({'success': False, 'error': 'Email is required'}), 400
+        
+        conn = get_db()
+        c = conn.cursor()
+        c.execute('SELECT id, username FROM users WHERE email = ?', (email,))
+        user = c.fetchone()
+        
+        if not user:
+            # Don't reveal if email exists or not (security)
+            return jsonify({'success': True, 'message': 'If that email exists, a reset link has been sent'}), 200
+        
+        # Generate reset token
+        reset_token = secrets.token_urlsafe(32)
+        expiry = (datetime.now() + timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')
+        
+        # Store token in database
+        c.execute('''
+            UPDATE users 
+            SET reset_token = ?, reset_token_expiry = ? 
+            WHERE id = ?
+        ''', (reset_token, expiry, user['id']))
+        conn.commit()
+        conn.close()
+        
+        # Send email
+        reset_url = f"https://findash-pfas.onrender.com/reset-password?token={reset_token}"
+        
+        msg = Message(
+            'FinDash - Password Reset Request',
+            recipients=[email]
+        )
+        msg.body = f'''Hello {user['username']},
 
+You requested to reset your password for FinDash.
+
+Click the link below to reset your password:
+{reset_url}
+
+This link will expire in 1 hour.
+
+If you didn't request this, please ignore this email.
+
+- FinDash Team
+'''
+        msg.html = f'''
+<html>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <h2 style="color: #667eea;">FinDash - Password Reset</h2>
+    <p>Hello <strong>{user['username']}</strong>,</p>
+    <p>You requested to reset your password for FinDash.</p>
+    <p>Click the button below to reset your password:</p>
+    <a href="{reset_url}" style="display: inline-block; padding: 12px 24px; background-color: #667eea; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0;">Reset Password</a>
+    <p><small>Or copy this link: {reset_url}</small></p>
+    <p><small>This link will expire in 1 hour.</small></p>
+    <p>If you didn't request this, please ignore this email.</p>
+    <p>- FinDash Team 💰</p>
+</body>
+</html>
+'''
+        
+        mail.send(msg)
+        
+        return jsonify({'success': True, 'message': 'If that email exists, a reset link has been sent'}), 200
+        
+    except Exception as e:
+        print(f"❌ Forgot password error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': 'Failed to send reset email'}), 500
+
+
+@app.route('/reset-password')
+def reset_password_page():
+    """Show password reset page"""
+    token = request.args.get('token')
+    if not token:
+        return "Invalid reset link", 400
+    return render_template('reset_password.html', token=token)
+
+
+@app.route('/api/reset-password', methods=['POST'])
+def reset_password():
+    """Reset password with token"""
+    try:
+        data = request.json
+        token = data.get('token', '').strip()
+        new_password = data.get('password', '').strip()
+        
+        if not token or not new_password:
+            return jsonify({'success': False, 'error': 'Token and password are required'}), 400
+        
+        if len(new_password) < 6:
+            return jsonify({'success': False, 'error': 'Password must be at least 6 characters'}), 400
+        
+        conn = get_db()
+        c = conn.cursor()
+        
+        # Find user with this token
+        c.execute('''
+            SELECT id, reset_token_expiry 
+            FROM users 
+            WHERE reset_token = ?
+        ''', (token,))
+        user = c.fetchone()
+        
+        if not user:
+            conn.close()
+            return jsonify({'success': False, 'error': 'Invalid or expired reset link'}), 400
+        
+        # Check if token expired
+        expiry = datetime.strptime(user['reset_token_expiry'], '%Y-%m-%d %H:%M:%S')
+        if datetime.now() > expiry:
+            conn.close()
+            return jsonify({'success': False, 'error': 'Reset link has expired'}), 400
+        
+        # Update password
+        new_hash = bcrypt.generate_password_hash(new_password).decode('utf-8')
+        c.execute('''
+            UPDATE users 
+            SET password_hash = ?, reset_token = NULL, reset_token_expiry = NULL 
+            WHERE id = ?
+        ''', (new_hash, user['id']))
+        conn.commit()
+        conn.close()
+        
+        return jsonify({'success': True, 'message': 'Password reset successful! You can now login.'}), 200
+        
+    except Exception as e:
+        print(f"❌ Reset password error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': 'Failed to reset password'}), 500
 if __name__ == '__main__':
     print("🚀 FinDash starting...")
     print("📍 Open: http://localhost:5000")
