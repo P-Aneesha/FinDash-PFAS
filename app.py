@@ -9,8 +9,9 @@ app.secret_key = 'change-this-secret-key'
 bcrypt = Bcrypt(app)
 
 def get_db():
-    conn = sqlite3.connect('database/finance.db')
+    conn = sqlite3.connect('database/finance.db', timeout=30.0, check_same_thread=False)
     conn.row_factory = sqlite3.Row
+    conn.execute('PRAGMA journal_mode=WAL')
     return conn
 
 def login_required(f):
