@@ -364,7 +364,7 @@ async function setBudget(e) {
     
     const data = {
         category: document.getElementById('budCat').value,
-        monthly_limit: parseFloat(document.getElementById('budLimit').value)
+        amount: parseFloat(document.getElementById('budLimit').value)  // ✅ FIXED: Changed from monthly_limit to amount
     };
     
     const res = await fetch('/api/budget', {
@@ -487,6 +487,7 @@ async function logout() {
     await fetch('/api/logout', {method: 'POST'});
     window.location.href = '/login';
 }
+
 // Page Navigation
 function showPage(pageName) {
     // Hide all pages
@@ -559,6 +560,7 @@ function exportCSV() {
     
     alert('📥 CSV exported successfully!');
 }
+
 // SMS Modal Functions
 function showSmsModal() {
     document.getElementById('smsModal').style.display = 'block';
@@ -650,5 +652,13 @@ async function addParsedTransaction(type, amount, description, category, date) {
         }
     } catch (error) {
         alert('Failed to add transaction: ' + error.message);
+    }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('smsModal');
+    if (event.target == modal) {
+        closeSmsModal();
     }
 }
