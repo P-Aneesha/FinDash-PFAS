@@ -112,8 +112,6 @@ def set_budget():
     try:
         data = request.get_json()
         category = data.get('category')
-        
-        # Accept BOTH 'amount' and 'monthly_limit' for compatibility
         amount = data.get('amount') or data.get('monthly_limit')
         
         if not category or not amount:
@@ -128,14 +126,23 @@ def set_budget():
         conn = get_db()
         c = conn.cursor()
         
-        # Delete old budget if exists
-        c.execute('DELETE FROM budgets WHERE category = ? AND user_id = ?', (category, user_id))
+        # Check if budget exists
+        c.execute('SELECT id FROM budgets WHERE category = ? AND user_id = ?', (category, user_id))
+        existing = c.fetchone()
         
-        # Insert new budget
-        c.execute('''
-            INSERT INTO budgets (category, monthly_limit, user_id)
-            VALUES (?, ?, ?)
-        ''', (category, amount, user_id))
+        if existing:
+            # UPDATE existing budget
+            c.execute('''
+                UPDATE budgets 
+                SET monthly_limit = ? 
+                WHERE category = ? AND user_id = ?
+            ''', (amount, category, user_id))
+        else:
+            # INSERT new budget
+            c.execute('''
+                INSERT INTO budgets (category, monthly_limit, user_id)
+                VALUES (?, ?, ?)
+            ''', (category, amount, user_id))
         
         conn.commit()
         conn.close()
@@ -144,8 +151,7 @@ def set_budget():
         
     except Exception as e:
         print(f"❌ Budget error: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-@app.route('/api/dashboard')
+        return jsonify({'success': False, 'error': str(e)}), 500@app.route('/api/dashboard')
 @login_required
 def dashboard():
     conn = get_db()
