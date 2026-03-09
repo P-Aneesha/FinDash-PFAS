@@ -364,7 +364,7 @@ async function setBudget(e) {
     
     const data = {
         category: document.getElementById('budCat').value,
-        amount: parseFloat(document.getElementById('budLimit').value)  // ✅ FIXED: Changed from monthly_limit to amount
+        amount: parseFloat(document.getElementById('budLimit').value)  // ✅ CORRECT
     };
     
     const res = await fetch('/api/budget', {
