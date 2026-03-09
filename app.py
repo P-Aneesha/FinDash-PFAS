@@ -107,19 +107,46 @@ def add_expense():
 @app.route('/api/budget', methods=['POST'])
 @login_required
 def set_budget():
-    data = request.json
-    conn = get_db()
-    c = conn.cursor()
-    c.execute('SELECT id FROM budgets WHERE category = ? AND user_id = ?', (data['category'], session['user_id']))
-    if c.fetchone():
-        c.execute('UPDATE budgets SET monthly_limit = ? WHERE category = ? AND user_id = ?',
-                  (float(data['monthly_limit']), data['category'], session['user_id']))
-    else:
-        c.execute('INSERT INTO budgets (category, monthly_limit, user_id) VALUES (?, ?, ?)',
-                  (data['category'], float(data['monthly_limit']), session['user_id']))
-    conn.commit()
-    conn.close()
-    return jsonify({'success': True})
+    """Set or update budget for a category"""
+    try:
+        data = request.get_json()
+        category = data.get('category')
+        amount = float(data.get('amount', 0))
+        
+        if not category or amount <= 0:
+            return jsonify({'success': False, 'error': 'Invalid category or amount'}), 400
+        
+        user_id = session.get('user_id')
+        conn = get_db()
+        
+        # Check if budget already exists for this category
+        existing = conn.execute('''
+            SELECT id FROM budgets 
+            WHERE category = ? AND user_id = ?
+        ''', (category, user_id)).fetchone()
+        
+        if existing:
+            # Update existing budget
+            conn.execute('''
+                UPDATE budgets 
+                SET amount = ? 
+                WHERE category = ? AND user_id = ?
+            ''', (amount, category, user_id))
+        else:
+            # Insert new budget
+            conn.execute('''
+                INSERT INTO budgets (category, amount, user_id)
+                VALUES (?, ?, ?)
+            ''', (category, amount, user_id))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({'success': True, 'message': 'Budget set successfully'}), 200
+        
+    except Exception as e:
+        print(f"Budget error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/dashboard')
 @login_required
