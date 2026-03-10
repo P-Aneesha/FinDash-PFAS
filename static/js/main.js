@@ -38,12 +38,15 @@ async function loadDashboard() {
     const res = await fetch('/api/dashboard');
     const data = await res.json();
     
+    console.log('Dashboard data:', data); // Debug
+    
     document.getElementById('totalIncome').textContent = '₹' + data.total_income.toFixed(2);
     document.getElementById('totalExpenses').textContent = '₹' + data.total_expenses.toFixed(2);
     document.getElementById('balance').textContent = '₹' + data.balance.toFixed(2);
     document.getElementById('health').textContent = data.health_score.toFixed(0);
     
     google.charts.setOnLoadCallback(() => {
+        // Chart 1: Income vs Expenses
         const d1 = google.visualization.arrayToDataTable([
             ['Type', 'Amount'],
             ['Income', data.total_income],
@@ -52,13 +55,34 @@ async function loadDashboard() {
         new google.visualization.ColumnChart(document.getElementById('chart1'))
             .draw(d1, {colors: ['#38ef7d', '#f45c43'], legend: 'none', backgroundColor: 'transparent'});
         
-        if (data.category_data.length > 0) {
+        // Chart 2: Expenses by Category (Pie Chart) - FIXED
+        console.log('Category data:', data.category_data); // Debug
+        
+        if (data.category_data && data.category_data.length > 0) {
             const d2 = new google.visualization.DataTable();
             d2.addColumn('string', 'Category');
             d2.addColumn('number', 'Amount');
-            data.category_data.forEach(c => d2.addRow([c.category, c.total]));
+            
+            data.category_data.forEach(c => {
+                const amount = parseFloat(c.total) || 0;
+                console.log('Adding to pie chart:', c.category, amount); // Debug
+                d2.addRow([c.category, amount]);
+            });
+            
+            console.log('Pie chart rows:', d2.getNumberOfRows()); // Debug
+            
             new google.visualization.PieChart(document.getElementById('chart2'))
-                .draw(d2, {colors: ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a'], backgroundColor: 'transparent'});
+                .draw(d2, {
+                    colors: ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a'], 
+                    backgroundColor: 'transparent',
+                    pieHole: 0.4,
+                    legend: { position: 'right' },
+                    pieSliceText: 'percentage',
+                    chartArea: { width: '90%', height: '90%' }
+                });
+        } else {
+            console.log('No category data available'); // Debug
+            document.getElementById('chart2').innerHTML = '<p style="text-align:center;color:#999;padding:50px;">📊 No expense data yet.<br>Add some expenses to see the breakdown!</p>';
         }
     });
 }
@@ -427,6 +451,7 @@ async function setBudget() {
         alert('❌ Failed: ' + error.message);
     }
 }
+
 async function addGoal(e) {
     e.preventDefault();
     
