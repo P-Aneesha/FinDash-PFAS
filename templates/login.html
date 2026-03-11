@@ -4,120 +4,165 @@
     <meta charset="UTF-8">
     <title>FinDash - Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+   <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #FFF5F7 0%, #FFE5EC 50%, #E8F5E9 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login-container {
+        background: white;
+        padding: 40px;
+        border-radius: 25px;
+        box-shadow: 0 20px 60px rgba(255, 107, 157, 0.2);
+        width: 90%;
+        max-width: 450px;
+        border: 1px solid rgba(255, 107, 157, 0.1);
+    }
+
+    .logo {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .logo h1 {
+        font-size: 2.5em;
+        background: linear-gradient(135deg, #FF6B9D 0%, #C5A3FF 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .logo p {
+        color: #718096;
+        font-size: 0.95em;
+    }
+
+    .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+        background: #f7fafc;
+        padding: 5px;
+        border-radius: 15px;
+    }
+
+    .tab {
+        flex: 1;
+        padding: 12px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        color: #718096;
+        border-radius: 12px;
+        transition: all 0.3s;
+    }
+
+    .tab.active {
+        background: linear-gradient(135deg, #FF6B9D 0%, #C5A3FF 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+    }
+
+    .form-content {
+        display: none;
+    }
+
+    .form-content.active {
+        display: block;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        color: #4a5568;
+        font-weight: 600;
+        font-size: 0.95em;
+    }
+
+    input {
+        width: 100%;
+        padding: 14px 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1em;
+        transition: all 0.3s;
+        background: #fafafa;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: #FF6B9D;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+    }
+
+    button[type="submit"] {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #FF6B9D 0%, #C5A3FF 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 10px;
+    }
+
+    button[type="submit"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 107, 157, 0.3);
+    }
+
+    .message {
+        padding: 12px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-weight: 500;
+        text-align: center;
+    }
+
+    .message.success {
+        background: linear-gradient(135deg, #E6FFFA 0%, #C1F7DC 100%);
+        color: #2d5f4d;
+        border: 1px solid #A8E6CF;
+    }
+
+    .message.error {
+        background: linear-gradient(135deg, #FFF5F7 0%, #FFE5EC 100%);
+        color: #8b3a4a;
+        border: 1px solid #FFB6C1;
+    }
+
+    @media (max-width: 480px) {
+        .login-container {
+            padding: 30px 20px;
         }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 400px;
-            width: 100%;
-        }
-        
-        h1 {
-            color: #667eea;
-            text-align: center;
-            margin-bottom: 30px;
+
+        .logo h1 {
             font-size: 2em;
         }
-        
-        .tabs {
-            display: flex;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #eee;
-        }
-        
-        .tab {
-            flex: 1;
-            padding: 12px;
-            text-align: center;
-            cursor: pointer;
-            border: none;
-            background: none;
-            color: #999;
-            font-size: 16px;
-        }
-        
-        .tab.active {
-            color: #667eea;
-            border-bottom: 3px solid #667eea;
-            margin-bottom: -2px;
-        }
-        
-        .form-container {
-            display: none;
-        }
-        
-        .form-container.active {
-            display: block;
-        }
-        
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-        
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        button {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        
-        .message {
-            padding: 12px;
-            margin: 15px 0;
-            border-radius: 8px;
-            text-align: center;
-            display: none;
-        }
-        
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-    </style>
+    }
+</style>
 </head>
 <body>
     <div class="container">
