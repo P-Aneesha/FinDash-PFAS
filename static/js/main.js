@@ -38,7 +38,7 @@ async function loadDashboard() {
     const res = await fetch('/api/dashboard');
     const data = await res.json();
     
-    console.log('Dashboard data:', data); // Debug
+    console.log('Dashboard data:', data);
     
     document.getElementById('totalIncome').textContent = '₹' + data.total_income.toFixed(2);
     document.getElementById('totalExpenses').textContent = '₹' + data.total_expenses.toFixed(2);
@@ -56,7 +56,7 @@ async function loadDashboard() {
             .draw(d1, {colors: ['#38ef7d', '#f45c43'], legend: 'none', backgroundColor: 'transparent'});
         
         // Chart 2: Expenses by Category (Pie Chart) - FIXED
-        console.log('Category data:', data.category_data); // Debug
+        console.log('Category data:', data.category_data);
         
         if (data.category_data && data.category_data.length > 0) {
             const d2 = new google.visualization.DataTable();
@@ -65,11 +65,11 @@ async function loadDashboard() {
             
             data.category_data.forEach(c => {
                 const amount = parseFloat(c.total) || 0;
-                console.log('Adding to pie chart:', c.category, amount); // Debug
+                console.log('Adding to pie chart:', c.category, amount);
                 d2.addRow([c.category, amount]);
             });
             
-            console.log('Pie chart rows:', d2.getNumberOfRows()); // Debug
+            console.log('Pie chart rows:', d2.getNumberOfRows());
             
             new google.visualization.PieChart(document.getElementById('chart2'))
                 .draw(d2, {
@@ -81,7 +81,7 @@ async function loadDashboard() {
                     chartArea: { width: '90%', height: '90%' }
                 });
         } else {
-            console.log('No category data available'); // Debug
+            console.log('No category data available');
             document.getElementById('chart2').innerHTML = '<p style="text-align:center;color:#999;padding:50px;">📊 No expense data yet.<br>Add some expenses to see the breakdown!</p>';
         }
     });
@@ -556,8 +556,8 @@ async function logout() {
     window.location.href = '/login';
 }
 
-// Page Navigation
-function showPage(pageName) {
+// Page Navigation - FIXED
+function showPage(pageName, event) {
     // Hide all pages
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     
@@ -567,11 +567,26 @@ function showPage(pageName) {
     // Show selected page
     document.getElementById(pageName + 'Page').classList.add('active');
     
-    // Set active tab
-    event.target.classList.add('active');
+    // Set active tab (if event exists, meaning it was clicked)
+    if (event && event.target) {
+        event.target.classList.add('active');
+    } else {
+        // If no event, find and activate the corresponding tab
+        const tabs = document.querySelectorAll('.nav-tab');
+        tabs.forEach(tab => {
+            const tabText = tab.textContent.toLowerCase();
+            if (tabText.includes(pageName.toLowerCase())) {
+                tab.classList.add('active');
+            }
+        });
+    }
     
     // Load data for specific pages
-    if (pageName === 'transactions') {
+    if (pageName === 'dashboard') {
+        loadDashboard();
+        loadStatistics();
+        loadRecommendations();
+    } else if (pageName === 'transactions') {
         loadTransactions();
         calculateTransactionSummary();
     } else if (pageName === 'goals') {
@@ -712,24 +727,34 @@ async function addParsedTransaction(type, amount, description, category, date) {
         
         if (data.success) {
             alert('✅ Transaction added successfully from SMS!');
- 	           closeSmsModal();
+            closeSmsModal();
             
-            // Refresh ALL data to show the new transaction
-            await loadDashboard();
-            await loadStatistics();
-            await loadRecommendations();
-            await loadBudgetAlerts();
-            await loadTransactions();
-            await loadBudgets();
-            await loadTrends();
+            // Refresh all data
+            loadDashboard();
+            loadStatistics();
+            loadRecommendations();
+            loadBudgetAlerts();
+            loadTransactions();
+            loadBudgets();
+            loadTrends();
             
-            // Switch to transactions page to show the new transaction
-            showPage('transactions');
+            // Switch to transactions page (without event parameter)
+            setTimeout(() => {
+                showPage('transactions');
+            }, 500);
         } else {
-            alert('❌ Error adding transaction: ' + (data.error || 'Unknown error'));
+            alert('❌ Error: ' + (data.error || 'Unknown error'));
         }
     } catch (error) {
         console.error('Add transaction error:', error);
         alert('❌ Failed to add transaction: ' + error.message);
+    }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('smsModal');
+    if (event.target == modal) {
+        closeSmsModal();
     }
 }
