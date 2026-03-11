@@ -1044,8 +1044,9 @@ body.dark-mode .summary-item span:first-child {
     outline: none;
     border-color: #60a5fa;
 }
-/* ============================================
-   MOBILE RESPONSIVE STYLES
+
+    /* ============================================
+   MOBILE RESPONSIVE STYLES - IMPROVED
    ============================================ */
 
 @media screen and (max-width: 768px) {
@@ -1057,77 +1058,123 @@ body.dark-mode .summary-item span:first-child {
     
     /* Header */
     header {
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
         gap: 10px;
-        padding: 15px 10px;
+        padding: 12px 10px;
     }
     
     header h1 {
-        font-size: 1.5em;
+        font-size: 1.3em;
+        flex: 1;
     }
     
     .header-right {
-        width: 100%;
-        justify-content: space-between;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+    
+    .header-right span {
+        font-size: 0.9em;
+    }
+    
+    .btn-theme, .btn-logout {
+        padding: 8px 12px;
+        font-size: 0.85em;
     }
     
     /* Navigation Tabs */
     .nav-tabs {
+        display: flex;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         gap: 5px;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
     }
     
     .nav-tab {
-        min-width: 100px;
-        font-size: 0.9em;
-        padding: 10px 15px;
+        min-width: 90px;
+        font-size: 0.85em;
+        padding: 10px 12px;
+        white-space: nowrap;
+        flex-shrink: 0;
     }
     
-    /* Summary Cards */
+    /* Summary Cards - 2 PER ROW */
     .summary-cards {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
         gap: 10px;
+        margin-bottom: 20px;
     }
     
     .card {
-        padding: 15px;
+        padding: 15px 10px;
     }
     
     .card h3 {
-        font-size: 0.9em;
+        font-size: 0.8em;
+        margin-bottom: 8px;
     }
     
     .card p {
-        font-size: 1.3em;
+        font-size: 1.2em;
+        font-weight: bold;
     }
     
-    /* Stats Grid */
+    /* Stats Section */
+    .stats-section h2 {
+        font-size: 1.2em;
+        margin-bottom: 15px;
+    }
+    
+    /* Stats Grid - 2 PER ROW */
     .stats-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(2, 1fr);
         gap: 10px;
+        margin-bottom: 20px;
     }
     
     .stat-box {
-        padding: 15px;
+        padding: 12px;
     }
     
     .stat-icon {
         font-size: 1.5em;
+        margin-bottom: 5px;
     }
     
     .stat-label {
-        font-size: 0.75em;
+        font-size: 0.7em;
+        margin-bottom: 5px;
     }
     
     .stat-value {
-        font-size: 1.1em;
+        font-size: 1em;
+        font-weight: bold;
     }
     
-    /* Forms Section */
+    .stat-sub {
+        font-size: 0.75em;
+    }
+    
+    /* Recommendations */
+    .recommendations {
+        margin-bottom: 20px;
+    }
+    
+    .rec-item {
+        padding: 10px;
+        font-size: 0.85em;
+        margin-bottom: 8px;
+    }
+    
+    /* Forms Section - SINGLE COLUMN */
     .forms-section {
         grid-template-columns: 1fr;
         gap: 15px;
+        margin-bottom: 20px;
     }
     
     .form-box {
@@ -1135,40 +1182,72 @@ body.dark-mode .summary-item span:first-child {
     }
     
     .form-box h3 {
-        font-size: 1.1em;
+        font-size: 1em;
+        margin-bottom: 12px;
     }
     
-    input, select, button {
+    input, select, textarea {
         font-size: 16px; /* Prevents zoom on iOS */
         padding: 12px;
+        width: 100%;
+        margin: 8px 0;
     }
     
     button {
-        padding: 14px;
+        font-size: 0.9em;
+        padding: 12px;
+        width: 100%;
+        margin-top: 8px;
     }
     
-    /* Charts Section */
+    .sms-btn {
+        background: #2196F3;
+        margin-top: 5px;
+    }
+    
+    /* Charts Section - 2 CHARTS PER ROW (except trends) */
     .charts-section {
-        grid-template-columns: 1fr;
-        gap: 15px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
     }
     
     .chart-box {
-        padding: 15px;
+        padding: 12px;
+        min-height: 250px;
     }
     
+    .chart-box h3 {
+        font-size: 0.85em;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+    
+    /* Monthly Trends - FULL WIDTH */
     .chart-box.full-width {
-        grid-column: 1;
+        grid-column: 1 / -1;
+        min-height: 300px;
+    }
+    
+    #chart1, #chart2 {
+        height: 200px !important;
+    }
+    
+    #chart3 {
+        height: 250px !important;
     }
     
     /* Tables */
     .table-container {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        margin-bottom: 20px;
     }
     
     table {
-        font-size: 0.85em;
+        font-size: 0.75em;
+        min-width: 600px;
     }
     
     table th,
@@ -1177,52 +1256,104 @@ body.dark-mode .summary-item span:first-child {
         white-space: nowrap;
     }
     
+    /* Transaction Summary */
+    .transaction-summary {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 15px;
+        padding: 12px;
+    }
+    
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px;
+        background: rgba(102, 126, 234, 0.1);
+        border-radius: 5px;
+    }
+    
     /* Budget Items */
     .budget-item {
-        padding: 12px;
+        padding: 15px;
+        margin-bottom: 12px;
     }
     
     .budget-header {
         font-size: 0.9em;
+        margin-bottom: 10px;
+    }
+    
+    .budget-progress {
+        margin: 10px 0;
+    }
+    
+    .budget-details {
+        font-size: 0.85em;
+        gap: 10px;
     }
     
     /* Goal Items */
     .goal-item {
         padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .goal-header {
+        margin-bottom: 10px;
+    }
+    
+    .goal-name {
+        font-size: 1em;
+    }
+    
+    .goal-amount {
+        font-size: 1.1em;
     }
     
     .goal-details {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin: 15px 0;
+    }
+    
+    .goal-detail-label {
+        font-size: 0.75em;
+    }
+    
+    .goal-detail-value {
+        font-size: 0.9em;
     }
     
     .goal-actions {
+        display: flex;
         flex-direction: column;
         gap: 8px;
     }
     
     .goal-actions button {
         width: 100%;
-    }
-    
-    /* Recommendations */
-    .rec-item {
-        padding: 12px;
-        font-size: 0.9em;
+        padding: 10px;
     }
     
     /* Alerts */
     .alert-item {
-        padding: 12px;
-        font-size: 0.9em;
+        padding: 10px;
+        font-size: 0.85em;
+        margin-bottom: 8px;
     }
     
-    /* Transaction Summary */
-    .transaction-summary {
+    /* Controls (Search/Filter) */
+    .controls {
+        display: flex;
         flex-direction: column;
         gap: 10px;
+        margin-bottom: 15px;
     }
     
-    .summary-item {
+    .controls input,
+    .controls select,
+    .controls button {
         width: 100%;
     }
     
@@ -1230,70 +1361,109 @@ body.dark-mode .summary-item span:first-child {
     .modal-content {
         width: 95%;
         padding: 20px;
-        margin: 10% auto;
+        margin: 5% auto;
+        max-height: 90vh;
+        overflow-y: auto;
     }
     
-    /* Buttons */
-    .btn-delete {
-        font-size: 0.85em;
-        padding: 8px 12px;
-    }
-    
-    .sms-btn {
-        font-size: 0.9em;
-    }
-}
-
-/* Extra small devices (phones < 480px) */
-@media screen and (max-width: 480px) {
-    header h1 {
-        font-size: 1.3em;
-    }
-    
-    .nav-tab {
-        min-width: 80px;
-        font-size: 0.8em;
-        padding: 8px 10px;
-    }
-    
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .card h3 {
-        font-size: 0.85em;
-    }
-    
-    .card p {
+    .modal-content h2 {
         font-size: 1.2em;
     }
     
-    table {
+    .modal-content textarea {
+        font-size: 14px;
+    }
+    
+    /* Delete Buttons */
+    .btn-delete {
+        font-size: 0.8em;
+        padding: 6px 10px;
+    }
+    
+    /* Page Spacing */
+    .page {
+        padding-bottom: 20px;
+    }
+}
+
+/* Extra small devices (phones < 420px) */
+@media screen and (max-width: 420px) {
+    header h1 {
+        font-size: 1.1em;
+    }
+    
+    .nav-tab {
+        min-width: 75px;
+        font-size: 0.75em;
+        padding: 8px 8px;
+    }
+    
+    .card h3 {
         font-size: 0.75em;
     }
     
-    .goal-details {
-        grid-template-columns: 1fr;
+    .card p {
+        font-size: 1.1em;
+    }
+    
+    .stat-label {
+        font-size: 0.65em;
+    }
+    
+    .stat-value {
+        font-size: 0.95em;
+    }
+    
+    .chart-box h3 {
+        font-size: 0.75em;
+    }
+    
+    #chart1, #chart2 {
+        height: 180px !important;
     }
 }
 
 /* Landscape mode on mobile */
 @media screen and (max-width: 768px) and (orientation: landscape) {
     .summary-cards {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(4, 1fr);
     }
     
     .stats-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .charts-section {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
-/* Improve touch targets */
+/* Improve touch targets for mobile */
 @media (hover: none) and (pointer: coarse) {
     button,
     .nav-tab,
-    a {
+    a,
+    input[type="submit"] {
         min-height: 44px;
-        min-width: 44px;
+    }
+    
+    .btn-delete {
+        min-height: 38px;
+    }
+}
+
+/* Fix for very small screens */
+@media screen and (max-width: 360px) {
+    .summary-cards,
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .charts-section {
+        grid-template-columns: 1fr;
+    }
+    
+    .chart-box {
+        min-height: 200px;
     }
 }
