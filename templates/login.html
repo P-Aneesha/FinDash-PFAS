@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>FinDash - Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <style>
+  <style>
     * {
         margin: 0;
         padding: 0;
@@ -12,8 +12,8 @@
     }
 
     body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #FFF5F7 0%, #FFE5EC 50%, #E8F5E9 100%);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background: #f8f9fa;
         min-height: 100vh;
         display: flex;
         justify-content: center;
@@ -23,11 +23,11 @@
     .login-container {
         background: white;
         padding: 40px;
-        border-radius: 25px;
-        box-shadow: 0 20px 60px rgba(255, 107, 157, 0.2);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         width: 90%;
         max-width: 450px;
-        border: 1px solid rgba(255, 107, 157, 0.1);
+        border: 1px solid #e8e8e8;
     }
 
     .logo {
@@ -37,16 +37,14 @@
 
     .logo h1 {
         font-size: 2.5em;
-        background: linear-gradient(135deg, #FF6B9D 0%, #C5A3FF 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: #1a1a1a;
         font-weight: 700;
         margin-bottom: 5px;
+        letter-spacing: -0.5px;
     }
 
     .logo p {
-        color: #718096;
+        color: #888;
         font-size: 0.95em;
     }
 
@@ -54,9 +52,9 @@
         display: flex;
         gap: 10px;
         margin-bottom: 30px;
-        background: #f7fafc;
+        background: #f8f9fa;
         padding: 5px;
-        border-radius: 15px;
+        border-radius: 8px;
     }
 
     .tab {
@@ -66,15 +64,14 @@
         border: none;
         cursor: pointer;
         font-weight: 600;
-        color: #718096;
-        border-radius: 12px;
+        color: #666;
+        border-radius: 6px;
         transition: all 0.3s;
     }
 
     .tab.active {
-        background: linear-gradient(135deg, #FF6B9D 0%, #C5A3FF 100%);
+        background: #1a1a1a;
         color: white;
-        box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
     }
 
     .form-content {
@@ -92,7 +89,7 @@
     label {
         display: block;
         margin-bottom: 8px;
-        color: #4a5568;
+        color: #333;
         font-weight: 600;
         font-size: 0.95em;
     }
@@ -100,8 +97,8 @@
     input {
         width: 100%;
         padding: 14px 15px;
-        border: 2px solid #e2e8f0;
-        border-radius: 12px;
+        border: 2px solid #e8e8e8;
+        border-radius: 8px;
         font-size: 1em;
         transition: all 0.3s;
         background: #fafafa;
@@ -109,18 +106,17 @@
 
     input:focus {
         outline: none;
-        border-color: #FF6B9D;
+        border-color: #1a1a1a;
         background: white;
-        box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
     }
 
     button[type="submit"] {
         width: 100%;
         padding: 14px;
-        background: linear-gradient(135deg, #FF6B9D 0%, #C5A3FF 100%);
+        background: #1a1a1a;
         color: white;
         border: none;
-        border-radius: 12px;
+        border-radius: 8px;
         font-size: 1em;
         font-weight: 600;
         cursor: pointer;
@@ -129,28 +125,28 @@
     }
 
     button[type="submit"]:hover {
+        background: #333;
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(255, 107, 157, 0.3);
     }
 
     .message {
         padding: 12px;
-        border-radius: 10px;
+        border-radius: 8px;
         margin-bottom: 20px;
         font-weight: 500;
         text-align: center;
     }
 
     .message.success {
-        background: linear-gradient(135deg, #E6FFFA 0%, #C1F7DC 100%);
-        color: #2d5f4d;
-        border: 1px solid #A8E6CF;
+        background: #eafaf1;
+        color: #27ae60;
+        border: 1px solid #27ae60;
     }
 
     .message.error {
-        background: linear-gradient(135deg, #FFF5F7 0%, #FFE5EC 100%);
-        color: #8b3a4a;
-        border: 1px solid #FFB6C1;
+        background: #fadbd8;
+        color: #e74c3c;
+        border: 1px solid #e74c3c;
     }
 
     @media (max-width: 480px) {
