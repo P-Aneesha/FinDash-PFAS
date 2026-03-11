@@ -703,8 +703,7 @@ async function addParsedTransaction(type, amount, description, category, date) {
                     category: category,
                     amount: amount,
                     description: description,
-                    date: date,
-                    day_type: new Date(date).getDay() >= 5 ? 'weekend' : 'weekday'
+                    date: date
                 })
             });
         }
@@ -712,21 +711,25 @@ async function addParsedTransaction(type, amount, description, category, date) {
         const data = await response.json();
         
         if (data.success) {
-            alert('✅ Transaction added successfully!');
-            closeSmsModal();
-            location.reload(); // Refresh the entire page
+            alert('✅ Transaction added successfully from SMS!');
+ 	           closeSmsModal();
+            
+            // Refresh ALL data to show the new transaction
+            await loadDashboard();
+            await loadStatistics();
+            await loadRecommendations();
+            await loadBudgetAlerts();
+            await loadTransactions();
+            await loadBudgets();
+            await loadTrends();
+            
+            // Switch to transactions page to show the new transaction
+            showPage('transactions');
         } else {
-            alert('Error adding transaction');
+            alert('❌ Error adding transaction: ' + (data.error || 'Unknown error'));
         }
     } catch (error) {
-        alert('Failed to add transaction: ' + error.message);
-    }
-}
-
-// Close modal when clicking outside
-window.onclick = function(event) {
-    const modal = document.getElementById('smsModal');
-    if (event.target == modal) {
-        closeSmsModal();
+        console.error('Add transaction error:', error);
+        alert('❌ Failed to add transaction: ' + error.message);
     }
 }
