@@ -131,7 +131,7 @@ header h1 {
 }
 
 /* ============================================
-   SUMMARY CARDS
+   SUMMARY CARDS - ENHANCED HOVER EFFECTS
    ============================================ */
 
 .summary-cards {
@@ -147,13 +147,14 @@ header h1 {
     border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     text-align: center;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
     border: 1px solid #e8e8e8;
+    cursor: pointer;
 }
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .card h3 {
@@ -179,12 +180,22 @@ header h1 {
     color: #27ae60;
 }
 
+.card.income:hover {
+    background: #f0fff4;
+    border-color: #27ae60;
+}
+
 .card.expense {
     border-left: 4px solid #e74c3c;
 }
 
 .card.expense p {
     color: #e74c3c;
+}
+
+.card.expense:hover {
+    background: #fff5f5;
+    border-color: #e74c3c;
 }
 
 .card.balance {
@@ -195,12 +206,22 @@ header h1 {
     color: #3498db;
 }
 
+.card.balance:hover {
+    background: #f0f9ff;
+    border-color: #3498db;
+}
+
 .card.health {
     border-left: 4px solid #9b59b6;
 }
 
 .card.health p {
     color: #9b59b6;
+}
+
+.card.health:hover {
+    background: #faf5ff;
+    border-color: #9b59b6;
 }
 
 /* ============================================
@@ -852,4 +873,357 @@ body.dark-mode table tbody tr:hover {
 body.dark-mode .nav-tab.active {
     background: white;
     color: #1a1a1a;
+}
+
+/* ============================================
+   MOBILE RESPONSIVE STYLES
+   ============================================ */
+
+@media screen and (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    /* Header - Mobile */
+    header {
+        flex-direction: column;
+        gap: 12px;
+        padding: 15px;
+        align-items: stretch;
+    }
+    
+    header h1 {
+        font-size: 1.5em;
+        text-align: center;
+    }
+    
+    .header-right {
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+    }
+    
+    #username {
+        font-size: 0.9em;
+    }
+    
+    .btn-theme, .btn-logout {
+        padding: 8px 15px;
+        font-size: 0.85em;
+    }
+    
+    /* Navigation Tabs - FIXED FOR MOBILE */
+    .nav-tabs {
+        display: flex;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
+        gap: 8px;
+        padding: 8px;
+        margin-bottom: 20px;
+        white-space: nowrap;
+    }
+    
+    /* Hide scrollbar for Chrome, Safari */
+    .nav-tabs::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .nav-tab {
+        flex: 0 0 auto; /* Don't shrink, don't grow, auto width */
+        min-width: 110px;
+        padding: 12px 16px;
+        font-size: 0.9em;
+        white-space: nowrap;
+    }
+    
+    /* Summary Cards - 2 per row on mobile */
+    .summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    
+    .card {
+        padding: 18px 12px;
+    }
+    
+    .card h3 {
+        font-size: 0.75em;
+        margin-bottom: 8px;
+    }
+    
+    .card p {
+        font-size: 1.4em;
+    }
+    
+    /* Stats Section */
+    .stats-section {
+        padding: 20px 15px;
+    }
+    
+    .stats-section h2 {
+        font-size: 1.3em;
+        margin-bottom: 15px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .stat-box {
+        padding: 15px 10px;
+    }
+    
+    .stat-icon {
+        font-size: 2em;
+    }
+    
+    .stat-label {
+        font-size: 0.75em;
+    }
+    
+    .stat-value {
+        font-size: 1.2em;
+    }
+    
+    /* Recommendations */
+    .rec-item {
+        padding: 12px 15px;
+        font-size: 0.9em;
+    }
+    
+    /* Forms - Single column */
+    .forms-section {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .form-box {
+        padding: 20px 15px;
+    }
+    
+    .form-box h3 {
+        font-size: 1.1em;
+    }
+    
+    input, select, textarea {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 12px;
+    }
+    
+    button[type="submit"], .sms-btn, .add-btn {
+        font-size: 0.95em;
+        padding: 13px;
+    }
+    
+    /* Charts - 2 per row */
+    .charts-section {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .chart-box {
+        padding: 15px;
+        min-height: 250px;
+    }
+    
+    .chart-box h3 {
+        font-size: 0.9em;
+        margin-bottom: 12px;
+    }
+    
+    .chart-box.full-width {
+        grid-column: 1 / -1;
+        min-height: 300px;
+    }
+    
+    #chart1, #chart2 {
+        height: 200px !important;
+    }
+    
+    #chart3 {
+        height: 250px !important;
+    }
+    
+    /* Tables - Horizontal scroll */
+    .controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .controls input,
+    .controls select,
+    .controls button {
+        width: 100%;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    table {
+        font-size: 0.8em;
+        min-width: 600px;
+    }
+    
+    table th,
+    table td {
+        padding: 10px 8px;
+    }
+    
+    /* Transaction Summary */
+    .transaction-summary {
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px;
+    }
+    
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    .summary-item span:first-child {
+        text-align: left;
+    }
+    
+    .summary-item span:last-child {
+        text-align: right;
+        font-size: 1.3em;
+    }
+    
+    /* Budgets */
+    .budget-item {
+        padding: 15px;
+    }
+    
+    .budget-header {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+    }
+    
+    .budget-category {
+        font-size: 1.1em;
+    }
+    
+    /* Goals */
+    .goal-item {
+        padding: 20px 15px;
+    }
+    
+    .goal-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    
+    .goal-name {
+        font-size: 1.1em;
+    }
+    
+    .goal-amount {
+        font-size: 1.1em;
+    }
+    
+    .goal-details {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .goal-detail-label {
+        font-size: 0.75em;
+    }
+    
+    .goal-detail-value {
+        font-size: 1em;
+    }
+    
+    .goal-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .goal-actions button {
+        width: 100%;
+    }
+    
+    /* Alerts */
+    .alert-item {
+        padding: 12px 15px;
+        font-size: 0.9em;
+    }
+    
+    /* Modal */
+    .modal-content {
+        width: 95%;
+        padding: 25px 20px;
+        margin: 10% auto;
+    }
+    
+    .modal-content h2 {
+        font-size: 1.3em;
+    }
+}
+
+/* Extra small phones (< 400px) */
+@media screen and (max-width: 400px) {
+    header h1 {
+        font-size: 1.3em;
+    }
+    
+    .nav-tab {
+        min-width: 95px;
+        padding: 10px 12px;
+        font-size: 0.85em;
+    }
+    
+    .card h3 {
+        font-size: 0.7em;
+    }
+    
+    .card p {
+        font-size: 1.3em;
+    }
+    
+    .stat-icon {
+        font-size: 1.8em;
+    }
+    
+    .stat-label {
+        font-size: 0.7em;
+    }
+    
+    .stat-value {
+        font-size: 1.1em;
+    }
+}
+
+/* Landscape mode on mobile */
+@media screen and (max-width: 768px) and (orientation: landscape) {
+    .summary-cards {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Touch device improvements */
+@media (hover: none) and (pointer: coarse) {
+    button,
+    .nav-tab,
+    a,
+    input[type="submit"] {
+        min-height: 44px; /* Apple's recommended touch target size */
+    }
 }
