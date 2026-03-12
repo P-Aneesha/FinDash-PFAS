@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate FinDash Icons</title>
+</head>
+<body>
+    <h1>FinDash Icon Generator</h1>
+    <canvas id="canvas192" width="192" height="192"></canvas>
+    <br>
+    <canvas id="canvas512" width="512" height="512"></canvas>
+    <br>
+    <button onclick="downloadIcons()">Download Icons</button>
+
+    <script>
+        // 192x192 Icon
+        const canvas192 = document.getElementById('canvas192');
+        const ctx192 = canvas192.getContext('2d');
+        
+        // Background
+        ctx192.fillStyle = '#1a1a1a';
+        ctx192.fillRect(0, 0, 192, 192);
+        
+        // Rupee Symbol (White)
+        ctx192.fillStyle = '#ffffff';
+        ctx192.font = 'bold 120px Arial';
+        ctx192.textAlign = 'center';
+        ctx192.textBaseline = 'middle';
+        ctx192.fillText('₹', 96, 96);
+        
+        // 512x512 Icon
+        const canvas512 = document.getElementById('canvas512');
+        const ctx512 = canvas512.getContext('2d');
+        
+        // Background
+        ctx512.fillStyle = '#1a1a1a';
+        ctx512.fillRect(0, 0, 512, 512);
+        
+        // Rupee Symbol (White)
+        ctx512.fillStyle = '#ffffff';
+        ctx512.font = 'bold 320px Arial';
+        ctx512.textAlign = 'center';
+        ctx512.textBaseline = 'middle';
+        ctx512.fillText('₹', 256, 256);
+        
+        function downloadIcons() {
+            // Download 192x192
+            const link192 = document.createElement('a');
+            link192.download = 'icon-192.png';
+            link192.href = canvas192.toDataURL();
+            link192.click();
+            
+            // Download 512x512
+            setTimeout(() => {
+                const link512 = document.createElement('a');
+                link512.download = 'icon-512.png';
+                link512.href = canvas512.toDataURL();
+                link512.click();
+            }, 500);
+            
+            alert('Icons downloaded! Move them to C:\\Users\\Sony\\FinDash-PFAS\\static\\');
+        }
+    </script>
+</body>
+</html>

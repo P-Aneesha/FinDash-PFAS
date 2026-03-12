@@ -1,12 +1,12 @@
 {
-  "name": "FinDash-PFAS Financial Manager",
+  "name": "FinDash - Personal Finance Manager",
   "short_name": "FinDash",
-  "description": "Personal Finance Analysis System",
+  "description": "Track your income, expenses, budgets and financial goals",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#667eea",
-  "theme_color": "#667eea",
-  "orientation": "portrait-primary",
+  "background_color": "#1a1a1a",
+  "theme_color": "#1a1a1a",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "/static/icon-192.png",
