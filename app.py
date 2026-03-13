@@ -14,12 +14,8 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 bcrypt = Bcrypt(app)
 
 def get_db():
-    """Connect to PostgreSQL database"""
-    DATABASE_URL = os.environ.get('DATABASE_URL')
-    
-    if not DATABASE_URL:
-        print("⚠️ WARNING: DATABASE_URL not found!")
-        DATABASE_URL = 'postgresql://findash_user:FJE5YrxJCRvcS7ovmOUEyVIydhF3C3Vg@dpg-d6o0vb94tr6s73eer1vg-a.singapore-postgres.render.com/findash_db_bzrx'
+    # Use Render's PostgreSQL database directly
+    DATABASE_URL = 'postgresql://findash_user:FJE5YrxJCRvcS7ovmOUEyVIydhF3C3Vg@dpg-d6o0vb94tr6s73eer1vg-a.singapore-postgres.render.com/findash_db_bzrx'
     
     conn = psycopg2.connect(DATABASE_URL)
     conn.cursor_factory = psycopg2.extras.RealDictCursor

@@ -5,287 +5,221 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FinDash - Login</title>
     
-    <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#1a1a1a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        background: #f8f9fa;
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
 
-    .login-container {
-        background: white;
-        padding: 40px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        width: 90%;
-        max-width: 450px;
-        border: 1px solid #e8e8e8;
-    }
-
-    .logo {
-        text-align: center;
-        margin-bottom: 30px;
-    }
-
-    .logo h1 {
-        font-size: 2.5em;
-        color: #1a1a1a;
-        font-weight: 700;
-        margin-bottom: 5px;
-        letter-spacing: -0.5px;
-    }
-
-    .logo p {
-        color: #888;
-        font-size: 0.95em;
-    }
-
-    .tabs {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 30px;
-        background: #f8f9fa;
-        padding: 5px;
-        border-radius: 8px;
-    }
-
-    .tab {
-        flex: 1;
-        padding: 12px;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        font-weight: 600;
-        color: #666;
-        border-radius: 6px;
-        transition: all 0.3s;
-    }
-
-    .tab.active {
-        background: #1a1a1a;
-        color: white;
-    }
-
-    .form-content {
-        display: none;
-    }
-
-    .form-content.active {
-        display: block;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    label {
-        display: block;
-        margin-bottom: 8px;
-        color: #333;
-        font-weight: 600;
-        font-size: 0.95em;
-    }
-
-    input {
-        width: 100%;
-        padding: 14px 15px;
-        border: 2px solid #e8e8e8;
-        border-radius: 8px;
-        font-size: 1em;
-        transition: all 0.3s;
-        background: #fafafa;
-    }
-
-    input:focus {
-        outline: none;
-        border-color: #1a1a1a;
-        background: white;
-    }
-
-    button[type="submit"] {
-        width: 100%;
-        padding: 14px;
-        background: #1a1a1a;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 1em;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-        margin-top: 10px;
-    }
-
-    button[type="submit"]:hover {
-        background: #333;
-        transform: translateY(-2px);
-    }
-
-    .message {
-        padding: 12px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        font-weight: 500;
-        text-align: center;
-    }
-
-    .message.success {
-        background: #eafaf1;
-        color: #27ae60;
-        border: 1px solid #27ae60;
-    }
-
-    .message.error {
-        background: #fadbd8;
-        color: #e74c3c;
-        border: 1px solid #e74c3c;
-    }
-
-    @media (max-width: 480px) {
         .login-container {
-            padding: 30px 20px;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid #e8e8e8;
         }
 
-        .logo h1 {
-            font-size: 2em;
+        .logo { text-align: center; margin-bottom: 30px; }
+        .logo h1 { font-size: 2.5em; color: #1a1a1a; font-weight: 700; margin-bottom: 5px; letter-spacing: -0.5px; }
+        .logo p { color: #888; font-size: 0.95em; }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 5px;
+            border-radius: 8px;
+            width: 100%;
         }
-    }
-</style>
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+
+        .tab.active { background: #1a1a1a; color: white; }
+
+        /* KEY FIX: forms hidden by default */
+        .form-content { display: none; }
+        .form-content.active { display: block; }
+
+        .form-group { margin-bottom: 20px; }
+
+        label { display: block; margin-bottom: 8px; color: #333; font-weight: 600; font-size: 0.95em; }
+
+        input {
+            width: 100%;
+            padding: 14px 15px;
+            border: 2px solid #e8e8e8;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+
+        input:focus { outline: none; border-color: #1a1a1a; background: white; }
+        input::placeholder { color: #999; }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 14px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        button[type="submit"]:hover { background: #333; transform: translateY(-2px); }
+
+        .message { padding: 12px; border-radius: 8px; margin-bottom: 20px; font-weight: 500; text-align: center; }
+        .message.success { background: #eafaf1; color: #27ae60; border: 1px solid #27ae60; }
+        .message.error { background: #fadbd8; color: #e74c3c; border: 1px solid #e74c3c; }
+
+        @media (max-width: 480px) {
+            .login-container { padding: 30px 20px; }
+            .logo h1 { font-size: 2em; }
+            input, button { font-size: 16px; }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>💰 FinDash-PFAS</h1>
-        
-        <div class="tabs">
-            <button class="tab active" onclick="showTab('login')">Login</button>
-            <button class="tab" onclick="showTab('register')">Register</button>
+    <div class="login-container">
+        <div class="logo">
+            <h1>💰 FinDash-PFAS</h1>
+            <p>Personal Finance Tracker</p>
         </div>
-        
-        <div id="message" class="message"></div>
-        
+
+        <div class="tabs">
+            <button class="tab active" id="tabLogin" onclick="switchTab('login')">Login</button>
+            <button class="tab" id="tabRegister" onclick="switchTab('register')">Register</button>
+        </div>
+
+        <div id="message"></div>
+
         <!-- Login Form -->
-        <div id="loginForm" class="form-container active">
-            <form onsubmit="login(event)">
-                <input type="text" id="loginUsername" placeholder="Username" required>
-                <input type="password" id="loginPassword" placeholder="Password" required>
+        <div id="loginForm" class="form-content active">
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="loginUsername" placeholder="Enter your username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                </div>
                 <button type="submit">Login</button>
             </form>
         </div>
-        
+
         <!-- Register Form -->
-        <div id="registerForm" class="form-container">
-            <form onsubmit="register(event)">
-                <input type="text" id="regUsername" placeholder="Username" required>
-                <input type="text" id="regFullName" placeholder="Full Name" required>
-                <input type="email" id="regEmail" placeholder="Email" required>
-                <input type="password" id="regPassword" placeholder="Password (min 6 characters)" required minlength="6">
+        <div id="registerForm" class="form-content">
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="regUsername" placeholder="Choose a username" required>
+                </div>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="regFullname" placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="regEmail" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="regPassword" placeholder="Create a password" required>
+                </div>
                 <button type="submit">Register</button>
             </form>
         </div>
     </div>
-    
+
     <script>
-        function showTab(tab) {
-            document.getElementById('loginForm').classList.remove('active');
-            document.getElementById('registerForm').classList.remove('active');
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            
-            if (tab === 'login') {
-                document.getElementById('loginForm').classList.add('active');
-                document.querySelectorAll('.tab')[0].classList.add('active');
-            } else {
-                document.getElementById('registerForm').classList.add('active');
-                document.querySelectorAll('.tab')[1].classList.add('active');
-            }
-            
-            hideMessage();
+        // KEY FIX: use getElementById instead of event.target
+        function switchTab(tab) {
+            document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+            document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+            document.getElementById('loginForm').classList.toggle('active', tab === 'login');
+            document.getElementById('registerForm').classList.toggle('active', tab === 'register');
+            document.getElementById('message').innerHTML = '';
         }
-        
-        function showMessage(text, type) {
-            const msg = document.getElementById('message');
-            msg.textContent = text;
-            msg.className = 'message ' + type;
-            msg.style.display = 'block';
-        }
-        
-        function hideMessage() {
-            document.getElementById('message').style.display = 'none';
-        }
-        
-        async function login(e) {
+
+        async function handleLogin(e) {
             e.preventDefault();
-            
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
-            
             try {
                 const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({username, password})
+                    body: JSON.stringify({ username, password })
                 });
-                
                 const data = await response.json();
-                
                 if (data.success) {
-                    showMessage('✅ Login successful!', 'success');
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 1000);
+                    showMessage('Login successful! Redirecting...', 'success');
+                    setTimeout(() => { window.location.href = '/'; }, 1000);
                 } else {
-                    showMessage('❌ Invalid username or password', 'error');
+                    showMessage(data.message || 'Invalid username or password', 'error');
                 }
             } catch (error) {
-                showMessage('❌ Login failed. Please try again.', 'error');
+                showMessage('Login failed. Please try again.', 'error');
             }
         }
-        
-        async function register(e) {
+
+        async function handleRegister(e) {
             e.preventDefault();
-            
             const username = document.getElementById('regUsername').value;
-            const fullName = document.getElementById('regFullName').value;
+            const fullname = document.getElementById('regFullname').value;
             const email = document.getElementById('regEmail').value;
             const password = document.getElementById('regPassword').value;
-            
             try {
                 const response = await fetch('/api/register', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        username: username,
-                        full_name: fullName,
-                        email: email,
-                        password: password
-                    })
+                    body: JSON.stringify({ username, fullname, email, password })
                 });
-                
                 const data = await response.json();
-                
                 if (data.success) {
-                    showMessage('✅ Registration successful!', 'success');
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 1000);
+                    showMessage('Registration successful! Redirecting...', 'success');
+                    setTimeout(() => { window.location.href = '/'; }, 1000);
                 } else {
-                    showMessage('❌ ' + data.message, 'error');
+                    showMessage(data.message || 'Registration failed', 'error');
                 }
             } catch (error) {
-                showMessage('❌ Registration failed. Please try again.', 'error');
+                showMessage('Registration failed. Please try again.', 'error');
             }
+        }
+
+        function showMessage(text, type) {
+            document.getElementById('message').innerHTML = `<div class="message ${type}">${text}</div>`;
         }
     </script>
 </body>
