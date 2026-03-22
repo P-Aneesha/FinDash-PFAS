@@ -119,7 +119,10 @@
         <div class="tabs">
             <button class="tab active" id="tabLogin" onclick="switchTab('login')">Login</button>
             <button class="tab" id="tabRegister" onclick="switchTab('register')">Register</button>
+<<<<<<< HEAD
             <button class="tab" id="tabForgot" onclick="switchTab('forgot')">Forgot Password</button>
+=======
+>>>>>>> 422884e340f4974a296afc94db33cd2585780c0b
         </div>
 
         <div id="message"></div>
@@ -139,6 +142,7 @@
             </form>
         </div>
 
+<<<<<<< HEAD
         <!-- Forgot Password Form -->
         <div id="forgotForm" class="form-content">
             <form onsubmit="handleForgot(event)" id="forgotStepForm">
@@ -175,6 +179,8 @@
             </form>
         </div>
 
+=======
+>>>>>>> 422884e340f4974a296afc94db33cd2585780c0b
         <!-- Register Form -->
         <div id="registerForm" class="form-content">
             <form onsubmit="handleRegister(event)">
@@ -279,8 +285,10 @@
             } catch (e) {
                 showMessage('Error connecting to server', 'error');
             }
+            document.getElementById('loginForm').classList.toggle('active', tab === 'login');
+            document.getElementById('registerForm').classList.toggle('active', tab === 'register');
+            document.getElementById('message').innerHTML = '';
         }
-
         async function handleLogin(e) {
             e.preventDefault();
             const username = document.getElementById('loginUsername').value;
