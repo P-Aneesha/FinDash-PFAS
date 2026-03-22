@@ -1,93 +1,92 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>FinDash - Dashboard</title>
-    
-   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FinDash - Dashboard</title>
-    
-    <!-- PWA Meta Tags -->
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#1a1a1a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="FinDash">
-    <link rel="apple-touch-icon" href="/static/icon-192.png"> <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
+    <link rel="apple-touch-icon" href="/static/icon-192.png">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
-
 <body>
     <div class="container">
         <header>
-            <h1>smart personal financial tracker</h1>
+            <h1>💰 FinDash-PFAS</h1>
             <div class="header-right">
-                <span id="username"></span>
-                <button onclick="toggleTheme()" class="btn-theme">🌙</button>
-                <button onclick="logout()" class="btn-logout">Logout</button>
+                <span id="username">User</span>
+                <button class="btn-theme" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+                <button onclick="showPage('notifications', event)" style="position:relative;padding:10px 15px;background:#e74c3c;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;">
+                    🔔 <span id="notifCount" style="background:white;color:#e74c3c;border-radius:50%;padding:1px 6px;font-size:0.8em;font-weight:700;">0</span>
+                </button>
+                <button class="btn-logout" onclick="logout()">Logout</button>
             </div>
         </header>
-        
-        <!-- Navigation Tabs -->
-      <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('dashboard', event)">📊 Dashboard</button>
-    <button class="nav-tab" onclick="showPage('transactions', event)">📋 Transactions</button>
-    <button class="nav-tab" onclick="showPage('goals', event)">🎯 Goals</button>
-    <button class="nav-tab" onclick="showPage('budgets', event)">💰 Budgets</button>
-</div>
-        
-        <!-- Dashboard Page -->
-        <div id="dashboardPage" class="page active">
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showPage('dashboard', event)">Dashboard</button>
+            <button class="nav-tab" onclick="showPage('transactions', event)">Transactions</button>
+            <button class="nav-tab" onclick="showPage('budgets', event)">Budgets</button>
+            <button class="nav-tab" onclick="showPage('goals', event)">Goals</button>
+            <button class="nav-tab" onclick="showPage('alerts', event)">Alerts</button>
+            <button class="nav-tab" onclick="showPage('analytics', event)">📊 Analytics</button>
+            <button class="nav-tab" onclick="showPage('notifications', event)">🔔 Notifications</button>
+            <button class="nav-tab" onclick="showPage('profile', event)">👤 Profile</button>
+        </div>
+
+        <!-- DASHBOARD PAGE -->
+        <div id="dashboard" class="page active">
             <div class="summary-cards">
                 <div class="card income">
                     <h3>Total Income</h3>
-                    <p id="totalIncome">₹0</p>
+                    <p id="totalIncome">₹0.00</p>
                 </div>
                 <div class="card expense">
                     <h3>Total Expenses</h3>
-                    <p id="totalExpenses">₹0</p>
+                    <p id="totalExpenses">₹0.00</p>
                 </div>
                 <div class="card balance">
                     <h3>Balance</h3>
-                    <p id="balance">₹0</p>
+                    <p id="balance">₹0.00</p>
                 </div>
                 <div class="card health">
-                    <h3>Health Score</h3>
-                    <p id="health">0</p>
+                    <h3>Financial Health</h3>
+                    <p id="healthScore">0%</p>
                 </div>
             </div>
-            
+
             <div class="stats-section">
-                <h2>📈 Financial Insights</h2>
+                <h2>📊 Financial Statistics</h2>
                 <div class="stats-grid">
                     <div class="stat-box">
                         <div class="stat-icon">📊</div>
                         <div class="stat-label">Total Transactions</div>
-                        <div class="stat-value" id="statTrans">0</div>
+                        <div class="stat-value" id="statTransactions">0</div>
                     </div>
-                    <div class="stat-box">
-                        <div class="stat-icon">💵</div>
+                    <div class="stat-box highlight">
+                        <div class="stat-icon">💰</div>
                         <div class="stat-label">Avg Monthly Income</div>
-                        <div class="stat-value" id="statAvgInc">₹0</div>
+                        <div class="stat-value" id="statAvgIncome">₹0.00</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-icon">💸</div>
                         <div class="stat-label">Avg Monthly Expenses</div>
-                        <div class="stat-value" id="statAvgExp">₹0</div>
+                        <div class="stat-value" id="statAvgExpenses">₹0.00</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-icon">🏆</div>
-                        <div class="stat-label">Top Category</div>
-                        <div class="stat-value" id="statTopCat">N/A</div>
-                        <div class="stat-sub" id="statTopAmt">₹0</div>
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-label">Top Expense Category</div>
+                        <div class="stat-value" id="statTopCategory">N/A</div>
+                        <div class="stat-sub" id="statTopAmount">₹0.00</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-icon">📅</div>
                         <div class="stat-label">Days Tracking</div>
-                        <div class="stat-value" id="statDays">0</div>
+                        <div class="stat-value" id="statDaysTracking">0</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-icon">🎯</div>
@@ -95,36 +94,33 @@
                         <div class="stat-value" id="statGoals">0</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-icon">💰</div>
+                        <div class="stat-icon">💼</div>
                         <div class="stat-label">Active Budgets</div>
                         <div class="stat-value" id="statBudgets">0</div>
                     </div>
                     <div class="stat-box highlight">
-                        <div class="stat-icon">📊</div>
-                        <div class="stat-label">Month Change</div>
-                        <div class="stat-value" id="statMoM">0%</div>
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-label">Month-over-Month Change</div>
+                        <div class="stat-value" id="statMonthChange">0%</div>
                     </div>
                 </div>
             </div>
-            
-            <div class="recommendations" id="recommendations"></div>
-            
+
             <div class="forms-section">
                 <div class="form-box">
                     <h3>Add Income</h3>
                     <form id="incomeForm" onsubmit="addIncome(event)">
-                        <input type="text" id="incSource" placeholder="Source (e.g., Salary)" required>
-                        <input type="number" id="incAmount" placeholder="Amount" step="0.01" required>
-                        <input type="date" id="incDate" required>
+                        <input type="text" id="incomeSource" placeholder="Source (e.g., Salary)" required>
+                        <input type="number" id="incomeAmount" placeholder="Amount" step="0.01" required>
+                        <input type="date" id="incomeDate" required>
                         <button type="button" class="sms-btn" onclick="showSmsModal()">📱 Add from SMS</button>
                         <button type="submit">Add Income</button>
                     </form>
                 </div>
-                
                 <div class="form-box">
                     <h3>Add Expense</h3>
                     <form id="expenseForm" onsubmit="addExpense(event)">
-                        <select id="expCat" required>
+                        <select id="expenseCategory" required>
                             <option value="">Select Category</option>
                             <option value="Food">Food</option>
                             <option value="Transport">Transport</option>
@@ -133,173 +129,246 @@
                             <option value="Entertainment">Entertainment</option>
                             <option value="Healthcare">Healthcare</option>
                             <option value="Education">Education</option>
-                            <option value="friend">friend </option>  
                             <option value="Other">Other</option>
                         </select>
-                        <input type="number" id="expAmount" placeholder="Amount" step="0.01" required>
-                        <input type="text" id="expDesc" placeholder="Description (optional)">
-                        <input type="date" id="expDate" required>
+                        <input type="number" id="expenseAmount" placeholder="Amount" step="0.01" required>
+                        <input type="text" id="expenseDescription" placeholder="Description (optional)">
+                        <input type="date" id="expenseDate" required>
                         <button type="button" class="sms-btn" onclick="showSmsModal()">📱 Add from SMS</button>
-
                         <button type="submit">Add Expense</button>
                     </form>
                 </div>
             </div>
-            
+
             <div class="charts-section">
                 <div class="chart-box">
                     <h3>Income vs Expenses</h3>
                     <div id="chart1"></div>
                 </div>
                 <div class="chart-box">
-                    <h3>Expenses by Category</h3>
+                    <h3>Expense Breakdown</h3>
                     <div id="chart2"></div>
                 </div>
                 <div class="chart-box full-width">
-                    <h3>Monthly Trends (Last 6 Months)</h3>
+                    <h3>6-Month Trends</h3>
                     <div id="chart3"></div>
                 </div>
             </div>
         </div>
-        
-        <!-- Transactions Page -->
-        <div id="transactionsPage" class="page">
-            <h2>📋 Transaction History</h2>
-            
+
+        <!-- TRANSACTIONS PAGE -->
+        <div id="transactions" class="page">
+            <h2>Transaction History</h2>
             <div class="controls">
-                <input type="text" id="searchTrans" placeholder="🔍 Search..." onkeyup="searchTransactions()">
-                <select id="filterType" onchange="searchTransactions()">
-                    <option value="all">All Transactions</option>
-                    <option value="Income">Income Only</option>
-                    <option value="Expense">Expenses Only</option>
+                <input type="text" id="searchTransaction" placeholder="Search transactions..." oninput="filterTransactions()">
+                <select id="filterType" onchange="filterTransactions()">
+                    <option value="all">All Types</option>
+                    <option value="income">Income Only</option>
+                    <option value="expense">Expense Only</option>
                 </select>
-                <button onclick="exportCSV()" class="btn-export">📥 Export CSV</button>
+                <button class="btn-export" onclick="exportTransactions()">📥 Export to CSV</button>
             </div>
-            
             <div class="table-container">
-                <table>
+                <table id="transactionsTable">
                     <thead>
                         <tr>
                             <th>Date</th>
-                            <th>Type</th>
+                            <th>Time</th>
                             <th>Description</th>
                             <th>Amount</th>
-                            <th>Action</th>
+                            <th>Type</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="transList"></tbody>
+                    <tbody></tbody>
                 </table>
             </div>
-            
             <div class="transaction-summary">
                 <div class="summary-item">
-                    <span>Total Income:</span>
-                    <span id="sumIncome" class="type-income">₹0</span>
+                    <span>Total Income</span>
+                    <span id="summaryIncome">₹0.00</span>
                 </div>
                 <div class="summary-item">
-                    <span>Total Expenses:</span>
-                    <span id="sumExpense" class="type-expense">₹0</span>
+                    <span>Total Expenses</span>
+                    <span id="summaryExpenses">₹0.00</span>
                 </div>
                 <div class="summary-item">
-                    <span>Net Balance:</span>
-                    <span id="sumBalance">₹0</span>
+                    <span>Net Balance</span>
+                    <span id="summaryBalance">₹0.00</span>
                 </div>
             </div>
         </div>
-        
-        <!-- Goals Page -->
-        <div id="goalsPage" class="page">
-            <h2>🎯 Future Purchase Planner</h2>
-            
+
+        <!-- BUDGETS PAGE -->
+        <div id="budgets" class="page">
+            <h2>Monthly Budgets</h2>
             <div class="form-box">
-                <h3>Create New Goal</h3>
-                <form id="goalForm" onsubmit="addGoal(event)">
-                    <input type="text" id="goalName" placeholder="Goal Name (e.g., Buy Laptop)" required>
-                    <input type="number" id="goalAmount" placeholder="Target Amount (₹)" step="0.01" required>
-                    <input type="number" id="goalSavings" placeholder="Current Savings (₹)" step="0.01" value="0">
-                    <input type="date" id="goalDate" placeholder="Target Date" required>
-                    <button type="submit">Add Goal</button>
+                <h3>Set Budget</h3>
+                <form id="budgetForm" onsubmit="setBudget(event)">
+                    <select id="budgetCategory" required>
+                        <option value="">Select Category</option>
+                        <option value="Food">Food</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Bills">Bills</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Education">Education</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="number" id="budgetAmount" placeholder="Monthly Limit" step="0.01" required>
+                    <button type="submit">Set Budget</button>
                 </form>
             </div>
-            
+            <div id="budgetsList"></div>
+        </div>
+
+        <!-- GOALS PAGE -->
+        <div id="goals" class="page">
+            <h2>Financial Goals</h2>
+            <div class="form-box">
+                <h3>Create Goal</h3>
+                <form id="goalForm" onsubmit="addGoal(event)">
+                    <input type="text" id="goalName" placeholder="Goal Name (e.g., Emergency Fund)" required>
+                    <input type="number" id="goalAmount" placeholder="Target Amount" step="0.01" required>
+                    <input type="number" id="currentSavings" placeholder="Current Savings (optional)" step="0.01">
+                    <input type="date" id="goalDate" required>
+                    <button type="submit">Create Goal</button>
+                </form>
+            </div>
             <div id="goalsList"></div>
         </div>
-        
-     <!-- Budgets Page -->
-<div id="budgetsPage" class="page">
-    <h2>💰 Budget Management</h2>
-    
-    <div id="budgetAlerts"></div>
-    
-    <div class="form-box">
-        <h3>Set Category Budget</h3>
-        <form id="budgetForm" onsubmit="return false;">
-            <select id="budgetCategory" required>
-                <option value="">Select Category</option>
-                <option value="Food">Food</option>
-                <option value="Transport">Transport</option>
-                <option value="Shopping">Shopping</option>
-                <option value="Bills">Bills</option>
-                <option value="Entertainment">Entertainment</option>
-                <option value="Healthcare">Healthcare</option>
-                <option value="Education">Education</option>
-                <option value="Other">Other</option>
-            </select>
-            <input type="number" id="budgetAmount" placeholder="Monthly Limit (₹)" step="0.01" required>
-            <button type="button" onclick="setBudget()">Set Budget</button>
-        </form>
-    </div>
-    
-    <div id="budgetList"></div>
-</div>
-    <script src="https://www.gstatic.com/charts/loader.js"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
-    
-    <!-- PWA Service Worker -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/static/service-worker.js')
-                    .then(reg => console.log('✅ Service Worker registered'))
-                    .catch(err => console.log('❌ Service Worker failed:', err));
-            });
-        }
-        
-        // Install prompt
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            // Show install button (optional)
-            const installBtn = document.createElement('button');
-            installBtn.textContent = '📱 Install App';
-            installBtn.style.cssText = 'position:fixed;bottom:20px;right:20px;padding:15px 25px;background:#667eea;color:white;border:none;border-radius:50px;font-weight:bold;cursor:pointer;z-index:1000;box-shadow:0 4px 15px rgba(0,0,0,0.3);';
-            installBtn.onclick = () => {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('User installed the app');
-                    }
-                    deferredPrompt = null;
-                    installBtn.remove();
-                });
-            };
-            document.body.appendChild(installBtn);
-        });
-    </script>
-<!-- SMS Modal -->
-    <div id="smsModal" class="modal" style="display: none;">
+        <!-- ALERTS PAGE -->
+        <div id="alerts" class="page">
+            <h2>⚠️ Alerts & Recommendations</h2>
+            <div class="stats-section">
+                <h3>💡 Smart Recommendations</h3>
+                <div id="recommendationsList"></div>
+            </div>
+            <div class="stats-section">
+                <h3>🚨 Budget Alerts</h3>
+                <div id="alertsList"></div>
+            </div>
+
+            <!-- Achievements Section -->
+            <div class="stats-section">
+                <h3>🏆 Achievements</h3>
+                <div id="achievementsList"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ANALYTICS PAGE -->
+    <div id="analytics" class="page">
+        <h2>📊 Analytics & Reports</h2>
+
+        <!-- Income vs Expense by Month -->
+        <div class="stats-section">
+            <h3>📅 Income vs Expense (Last 12 Months)</h3>
+            <div id="analyticsChart1" style="height:350px;"></div>
+        </div>
+
+        <!-- Spending Heatmap -->
+        <div class="stats-section">
+            <h3>🌡️ Spending Heatmap (By Day of Week)</h3>
+            <div id="heatmapChart"></div>
+        </div>
+
+        <!-- Category Trends -->
+        <div class="stats-section">
+            <h3>📈 Category-wise Spending Trends (Last 6 Months)</h3>
+            <div id="categoryChart" style="height:350px;"></div>
+        </div>
+
+        <!-- PDF Download -->
+        <!-- Weekday vs Weekend -->
+        <div class="stats-section">
+            <h3>📅 Weekday vs Weekend Spending</h3>
+            <div id="weekdayWeekendCards"></div>
+        </div>
+
+        <div class="stats-section">
+            <h3>🗓️ Spending Calendar (Last 30 Days)</h3>
+            <div id="calendarHeatmap"></div>
+        </div>
+
+        <div class="stats-section">
+            <h3>📊 Weekly Spending Pattern</h3>
+            <div id="weeklyPattern"></div>
+        </div>
+
+        <div class="stats-section">
+            <h3>📥 Download Report</h3>
+            <p style="color:#888;margin-bottom:15px;">Download your monthly expense report as PDF</p>
+            <button onclick="downloadPDFReport()" style="padding:14px 30px;background:#1a1a1a;color:white;border:none;border-radius:8px;font-size:1em;font-weight:600;cursor:pointer;">
+                📄 Download PDF Report
+            </button>
+        </div>
+    </div>
+
+    <!-- NOTIFICATIONS PAGE -->
+    <div id="notifications" class="page">
+        <h2>🔔 Notifications</h2>
+        <div class="stats-section">
+            <h3>📬 Your Alerts</h3>
+            <div id="notificationsList"></div>
+        </div>
+    </div>
+
+    <!-- PROFILE PAGE -->
+    <div id="profile" class="page">
+        <h2>👤 Profile</h2>
+
+        <!-- User Info -->
+        <div class="stats-section">
+            <h3>📋 Account Information</h3>
+            <div id="profileInfo"></div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="stats-section">
+            <h3>🔒 Change Password</h3>
+            <div class="form-box" style="box-shadow:none;padding:0;border:none;">
+                <input type="password" id="currentPassword" placeholder="Current Password">
+                <input type="password" id="newPassword" placeholder="New Password">
+                <input type="password" id="confirmPassword" placeholder="Confirm New Password">
+                <button type="button" onclick="changePassword()" style="width:100%;padding:14px;background:#1a1a1a;color:white;border:none;border-radius:8px;font-size:1em;font-weight:600;cursor:pointer;margin-top:10px;">Change Password</button>
+            </div>
+        </div>
+
+        <!-- Security Question Setup -->
+        <div class="stats-section">
+            <h3>🛡️ Security Question (for Forgot Password)</h3>
+            <div class="form-box" style="box-shadow:none;padding:0;border:none;">
+                <select id="securityQuestion">
+                    <option value="">Select a Security Question</option>
+                    <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                    <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                    <option value="What city were you born in?">What city were you born in?</option>
+                    <option value="What was your childhood nickname?">What was your childhood nickname?</option>
+                    <option value="What is your favourite food?">What is your favourite food?</option>
+                    <option value="What is the name of your best friend?">What is the name of your best friend?</option>
+                </select>
+                <input type="text" id="securityAnswer" placeholder="Your Answer">
+                <button type="button" onclick="saveSecurityQuestion()" style="width:100%;padding:14px;background:#27ae60;color:white;border:none;border-radius:8px;font-size:1em;font-weight:600;cursor:pointer;margin-top:10px;">Save Security Question</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SMS MODAL -->
+    <div id="smsModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeSmsModal()">&times;</span>
             <h2>📱 Add Transaction from SMS</h2>
             <p>Paste your bank SMS below:</p>
-            <textarea id="smsText" rows="4" placeholder="Example: HDFCBK: Rs.500.00 debited from A/C XX1234 on 07-Mar-26 at AMAZON INDIA"></textarea>
-            <button onclick="parseSms()" class="add-btn">Parse SMS</button>
-            <div id="smsResult" style="margin-top: 20px;"></div>
+            <textarea id="smsText" rows="6" placeholder="Example: An amount of INR 20.00 has been DEBITED to your account XXX036 on 09/03/2026."></textarea>
+            <button class="add-btn" onclick="parseSms()">Parse SMS</button>
+            <div id="smsResult"></div>
         </div>
     </div>
 
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

@@ -8,18 +8,13 @@ from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = 'change-this-secret-key-to-something-random-and-secure'
-app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
 bcrypt = Bcrypt(app)
 
 def get_db():
-    """Connect to PostgreSQL database"""
-    DATABASE_URL = os.environ.get('DATABASE_URL')
-    
-    if not DATABASE_URL:
-        print("⚠️ WARNING: DATABASE_URL not found!")
-        DATABASE_URL = 'postgresql://findash_user:FJE5YrxJCRvcS7ovmOUEyVIydhF3C3Vg@dpg-d6o0vb94tr6s73eer1vg-a.singapore-postgres.render.com/findash_db_bzrx'
+    # Use Render's PostgreSQL database directly
+    DATABASE_URL = 'postgresql://findash_user:FJE5YrxJCRvcS7ovmOUEyVIydhF3C3Vg@dpg-d6o0vb94tr6s73eer1vg-a.singapore-postgres.render.com/findash_db_bzrx'
     
     conn = psycopg2.connect(DATABASE_URL)
     conn.cursor_factory = psycopg2.extras.RealDictCursor
@@ -186,13 +181,7 @@ def dashboard():
         ''', (uid,))
         cats = [dict(r) for r in c.fetchall()]
         
-        c.execute('''
-            SELECT day_type, SUM(amount) as total 
-            FROM expenses 
-            WHERE user_id = %s 
-            GROUP BY day_type
-        ''', (uid,))
-        days = [dict(r) for r in c.fetchall()]
+        days = []
         
         bal = float(inc) - float(exp)
         rate = (bal / float(inc) * 100) if float(inc) > 0 else 0
@@ -202,7 +191,7 @@ def dashboard():
             'total_income': float(inc),
             'total_expenses': float(exp),
             'balance': bal,
-            'category_data': cats,
+            'category_data': [{'category': r['category'], 'total': round(float(r['total']),2)} for r in cats],
             'day_type_data': days,
             'health_score': round(score, 2)
         })
@@ -221,14 +210,14 @@ def transactions():
         c = conn.cursor()
         
         c.execute('''
-            SELECT id, source as description, amount, date, 'Income' as type 
+            SELECT id, source as description, amount, date, created_at, 'Income' as type 
             FROM income 
             WHERE user_id = %s
         ''', (session['user_id'],))
         inc = [dict(r) for r in c.fetchall()]
         
         c.execute('''
-            SELECT id, category, amount, date, description, 'Expense' as type 
+            SELECT id, category, amount, date, description, created_at, 'Expense' as type 
             FROM expenses 
             WHERE user_id = %s
         ''', (session['user_id'],))
@@ -242,15 +231,17 @@ def transactions():
                 'description': desc,
                 'amount': float(e['amount']),
                 'date': str(e['date']),
+                'created_at': str(e['created_at']) if e['created_at'] else None,
                 'type': e['type']
             })
         
         for i in inc:
             i['date'] = str(i['date'])
             i['amount'] = float(i['amount'])
+            i['created_at'] = str(i['created_at']) if i.get('created_at') else None
         
         all_t = inc + exps
-        all_t.sort(key=lambda x: x['date'], reverse=True)
+        all_t.sort(key=lambda x: x['created_at'] or '', reverse=True)
         
         return jsonify({'transactions': all_t})
     except Exception as e:
@@ -532,7 +523,7 @@ def get_statistics():
                 FROM income 
                 WHERE user_id = %s 
                 GROUP BY TO_CHAR(date, 'YYYY-MM')
-            ) subq
+            ) AS subq
         ''', (uid,))
         avg_inc = c.fetchone()['avg'] or 0
         
@@ -543,7 +534,7 @@ def get_statistics():
                 FROM expenses 
                 WHERE user_id = %s 
                 GROUP BY TO_CHAR(date, 'YYYY-MM')
-            ) subq
+            ) AS subq
         ''', (uid,))
         avg_exp = c.fetchone()['avg'] or 0
         
@@ -576,7 +567,14 @@ def get_statistics():
             ) combined
         ''', (uid, uid))
         first = c.fetchone()['first']
-        days = (today.date() - first).days if first else 0
+        if first:
+            if hasattr(first, 'year'):
+                days = (today.date() - first).days
+            else:
+                from datetime import date
+                days = (today.date() - date.fromisoformat(str(first))).days
+        else:
+            days = 0
         
         return jsonify({'statistics': {
             'total_transactions': inc_count + exp_count,
@@ -607,21 +605,7 @@ def get_recommendations():
         uid = session['user_id']
         recs = []
         
-        c.execute('''
-            SELECT 
-                SUM(CASE WHEN day_type='weekend' THEN amount ELSE 0 END) as weekend,
-                SUM(CASE WHEN day_type='weekday' THEN amount ELSE 0 END) as weekday
-            FROM expenses 
-            WHERE user_id = %s
-        ''', (uid,))
-        r = c.fetchone()
-        
-        weekend = float(r['weekend']) if r['weekend'] else 0
-        weekday = float(r['weekday']) if r['weekday'] else 0
-        
-        if weekend and weekday and weekend > weekday * 0.5:
-            excess = weekend - (weekday * 0.5)
-            recs.append({'type': 'warning', 'message': f'You spend ₹{excess:.2f} more on weekends!'})
+        # weekend analysis skipped - day_type column not in DB
         
         c.execute('''
             SELECT category, SUM(amount) as total 
@@ -798,6 +782,429 @@ def parse_sms():
     except Exception as e:
         print(f"❌ Parse SMS error: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/achievements')
+@login_required
+def get_achievements():
+    conn = None
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        uid = session['user_id']
+        achievements = []
+
+        cur.execute('SELECT COUNT(*) as c FROM income WHERE user_id = %s', (uid,))
+        inc_count = cur.fetchone()['c']
+        cur.execute('SELECT COUNT(*) as c FROM expenses WHERE user_id = %s', (uid,))
+        exp_count = cur.fetchone()['c']
+
+        if inc_count + exp_count >= 1:
+            achievements.append({'icon': '🎉', 'title': 'First Transaction!', 'desc': 'You added your first transaction!', 'unlocked': True})
+        else:
+            achievements.append({'icon': '🎉', 'title': 'First Transaction!', 'desc': 'Add your first transaction to unlock!', 'unlocked': False})
+
+        cur.execute('SELECT COALESCE(SUM(amount),0) as total FROM income WHERE user_id = %s', (uid,))
+        inc = float(cur.fetchone()['total'])
+        cur.execute('SELECT COALESCE(SUM(amount),0) as total FROM expenses WHERE user_id = %s', (uid,))
+        exp = float(cur.fetchone()['total'])
+
+        if inc > 0 and ((inc - exp) / inc * 100) >= 30:
+            achievements.append({'icon': '⚔️', 'title': 'Savings Warrior!', 'desc': 'You saved more than 30% of your income!', 'unlocked': True})
+        else:
+            achievements.append({'icon': '⚔️', 'title': 'Savings Warrior!', 'desc': 'Save more than 30% of income to unlock!', 'unlocked': False})
+
+        cur.execute('SELECT COUNT(*) as c FROM budgets WHERE user_id = %s', (uid,))
+        bud_count = cur.fetchone()['c']
+        if bud_count >= 1:
+            achievements.append({'icon': '💰', 'title': 'Budget Master!', 'desc': 'You set up your first budget!', 'unlocked': True})
+        else:
+            achievements.append({'icon': '💰', 'title': 'Budget Master!', 'desc': 'Set up a budget to unlock!', 'unlocked': False})
+
+        cur.execute('SELECT COUNT(*) as c FROM goals WHERE user_id = %s', (uid,))
+        goal_count = cur.fetchone()['c']
+        if goal_count >= 1:
+            achievements.append({'icon': '🎯', 'title': 'Goal Crusher!', 'desc': 'You created your first savings goal!', 'unlocked': True})
+        else:
+            achievements.append({'icon': '🎯', 'title': 'Goal Crusher!', 'desc': 'Create a goal to unlock!', 'unlocked': False})
+
+        if inc_count + exp_count >= 10:
+            achievements.append({'icon': '🔥', 'title': '10 Transaction Streak!', 'desc': 'You logged 10 transactions!', 'unlocked': True})
+        else:
+            achievements.append({'icon': '🔥', 'title': '10 Transaction Streak!', 'desc': f'Log {10 - (inc_count + exp_count)} more transactions to unlock!', 'unlocked': False})
+
+        return jsonify({'achievements': achievements})
+    except Exception as e:
+        print(f"Achievements error: {e}")
+        return jsonify({'achievements': []})
+    finally:
+        close_db(conn)
+
+
+@app.route('/api/analytics/monthly')
+@login_required
+def monthly_analytics():
+    conn = None
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        uid = session['user_id']
+        today = datetime.now()
+        months, inc_data, exp_data = [], [], []
+        for i in range(12):
+            md = today - timedelta(days=30 * (11 - i))
+            mk = md.strftime('%Y-%m')
+            cur.execute("SELECT COALESCE(SUM(amount),0) as t FROM income WHERE TO_CHAR(date,'YYYY-MM')=%s AND user_id=%s", (mk, uid))
+            inc = float(cur.fetchone()['t'])
+            cur.execute("SELECT COALESCE(SUM(amount),0) as t FROM expenses WHERE TO_CHAR(date,'YYYY-MM')=%s AND user_id=%s", (mk, uid))
+            exp = float(cur.fetchone()['t'])
+            months.append(md.strftime('%b %Y'))
+            inc_data.append(round(inc, 2))
+            exp_data.append(round(exp, 2))
+        return jsonify({'months': months, 'income': inc_data, 'expenses': exp_data})
+    except Exception as e:
+        print(f"Monthly analytics error: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        close_db(conn)
+
+
+@app.route('/api/analytics/heatmap')
+@login_required
+def spending_heatmap():
+    conn = None
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        uid = session['user_id']
+        cur.execute("""
+            SELECT TO_CHAR(date, 'Day') as day_name,
+                   EXTRACT(DOW FROM date) as day_num,
+                   COALESCE(SUM(amount), 0) as total
+            FROM expenses WHERE user_id = %s
+            GROUP BY TO_CHAR(date, 'Day'), EXTRACT(DOW FROM date)
+            ORDER BY day_num
+        """, (uid,))
+        rows = cur.fetchall()
+        days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+        data = {d: 0 for d in days}
+        for r in rows:
+            data[r['day_name'].strip()] = round(float(r['total']), 2)
+        return jsonify({'heatmap': [{'day': d, 'total': data[d]} for d in days]})
+    except Exception as e:
+        print(f"Heatmap error: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        close_db(conn)
+
+
+@app.route('/api/analytics/categories')
+@login_required
+def category_trends():
+    conn = None
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        uid = session['user_id']
+        today = datetime.now()
+        cur.execute("SELECT DISTINCT category FROM expenses WHERE user_id=%s", (uid,))
+        categories = [r['category'] for r in cur.fetchall()]
+        months = []
+        for i in range(6):
+            md = today - timedelta(days=30 * (5 - i))
+            months.append(md.strftime('%b %Y'))
+        result = {}
+        for cat in categories:
+            result[cat] = []
+            for i in range(6):
+                md = today - timedelta(days=30 * (5 - i))
+                mk = md.strftime('%Y-%m')
+                cur.execute("SELECT COALESCE(SUM(amount),0) as t FROM expenses WHERE category=%s AND TO_CHAR(date,'YYYY-MM')=%s AND user_id=%s", (cat, mk, uid))
+                result[cat].append(round(float(cur.fetchone()['t']), 2))
+        return jsonify({'months': months, 'categories': result})
+    except Exception as e:
+        print(f"Category trends error: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        close_db(conn)
+
+
+@app.route('/api/notifications')
+@login_required
+def get_notifications():
+    conn = None
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        uid = session['user_id']
+        notifications = []
+        today = datetime.now()
+
+        cur.execute('SELECT * FROM budgets WHERE user_id = %s', (uid,))
+        buds = [dict(r) for r in cur.fetchall()]
+        cur.execute('SELECT category, SUM(amount) as spent FROM expenses WHERE user_id = %s GROUP BY category', (uid,))
+        spend = {r['category']: float(r['spent']) for r in cur.fetchall()}
+
+        for b in buds:
+            s = spend.get(b['category'], 0)
+            limit = float(b['monthly_limit'])
+            p = (s / limit * 100) if limit > 0 else 0
+            if p >= 100:
+                notifications.append({'type': 'danger', 'icon': '🚨', 'title': 'Budget Exceeded!', 'message': f"{b['category']} budget exceeded by ₹{round(s-limit,2)}", 'time': 'Now'})
+            elif p >= 80:
+                notifications.append({'type': 'warning', 'icon': '⚠️', 'title': 'Budget Warning', 'message': f"{b['category']} is {p:.0f}% used — ₹{round(limit-s,2)} remaining", 'time': 'Now'})
+
+        cur.execute('SELECT * FROM goals WHERE user_id = %s', (uid,))
+        goals = [dict(r) for r in cur.fetchall()]
+        for g in goals:
+            if g['target_date']:
+                td = datetime.strptime(str(g['target_date']), '%Y-%m-%d')
+                days_left = (td.date() - today.date()).days
+                current = float(g['current_savings'])
+                target = float(g['target_amount'])
+                if 0 < days_left <= 30 and current < target:
+                    notifications.append({'type': 'warning', 'icon': '🎯', 'title': 'Goal Deadline Near!', 'message': f"'{g['goal_name']}' deadline in {days_left} days — ₹{round(target-current,2)} still needed", 'time': f'{days_left} days left'})
+
+        week_ago = (today - timedelta(days=7)).strftime('%Y-%m-%d')
+        cur.execute('SELECT COALESCE(SUM(amount),0) as total FROM expenses WHERE date >= %s AND user_id = %s', (week_ago, uid))
+        week_exp = float(cur.fetchone()['total'])
+        cur.execute('SELECT COALESCE(SUM(amount),0) as total FROM income WHERE date >= %s AND user_id = %s', (week_ago, uid))
+        week_inc = float(cur.fetchone()['total'])
+        if week_exp > 0 or week_inc > 0:
+            notifications.append({'type': 'info', 'icon': '📊', 'title': 'Weekly Summary', 'message': f"This week: Income ₹{round(week_inc,2)} | Expenses ₹{round(week_exp,2)} | Saved ₹{round(week_inc-week_exp,2)}", 'time': 'This week'})
+
+        days_remaining = 30 - today.day
+        if days_remaining <= 5:
+            notifications.append({'type': 'info', 'icon': '🧾', 'title': 'Month End Reminder', 'message': f"Only {days_remaining} days left in month — check pending bills!", 'time': f'{days_remaining} days'})
+
+        if not notifications:
+            notifications.append({'type': 'success', 'icon': '✅', 'title': 'All Good!', 'message': 'No alerts right now. Keep up the great work!', 'time': 'Now'})
+
+        return jsonify({'notifications': notifications})
+    except Exception as e:
+        print(f"Notifications error: {e}")
+        return jsonify({'notifications': []})
+    finally:
+        close_db(conn)
+
+
+
+@app.route('/api/analytics/weekday-weekend')
+@login_required
+def weekday_weekend():
+    conn = None
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        uid = session['user_id']
+
+        # Total spending weekday vs weekend
+        cur.execute("""
+            SELECT 
+                CASE WHEN EXTRACT(DOW FROM date) IN (0,6) THEN 'Weekend' ELSE 'Weekday' END as day_type,
+                COALESCE(SUM(amount), 0) as total,
+                COUNT(*) as txn_count
+            FROM expenses WHERE user_id = %s
+            GROUP BY day_type
+        """, (uid,))
+        rows = cur.fetchall()
+        weekday_total = 0
+        weekend_total = 0
+        weekday_count = 0
+        weekend_count = 0
+        for r in rows:
+            if r['day_type'] == 'Weekday':
+                weekday_total = float(r['total'])
+                weekday_count = int(r['txn_count'])
+            else:
+                weekend_total = float(r['total'])
+                weekend_count = int(r['txn_count'])
+
+        weekday_avg = round(weekday_total / weekday_count, 2) if weekday_count > 0 else 0
+        weekend_avg = round(weekend_total / weekend_count, 2) if weekend_count > 0 else 0
+
+        # Daily spending for last 30 days (for calendar heatmap)
+        cur.execute("""
+            SELECT date, COALESCE(SUM(amount), 0) as total
+            FROM expenses 
+            WHERE user_id = %s AND date >= CURRENT_DATE - INTERVAL '30 days'
+            GROUP BY date ORDER BY date
+        """, (uid,))
+        daily = [{'date': str(r['date']), 'total': round(float(r['total']), 2)} for r in cur.fetchall()]
+
+        return jsonify({
+            'weekday_total': round(weekday_total, 2),
+            'weekend_total': round(weekend_total, 2),
+            'weekday_avg': weekday_avg,
+            'weekend_avg': weekend_avg,
+            'weekday_count': weekday_count,
+            'weekend_count': weekend_count,
+            'daily': daily
+        })
+    except Exception as e:
+        print(f"Weekday weekend error: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        close_db(conn)
+
+
+@app.route('/api/change-password', methods=['POST'])
+@login_required
+def change_password():
+    conn = None
+    try:
+        data = request.json
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM users WHERE id = %s', (session['user_id'],))
+        user = cur.fetchone()
+        if not bcrypt.check_password_hash(user['password_hash'], data['current_password']):
+            return jsonify({'success': False, 'message': 'Current password is wrong!'}), 400
+        new_hash = bcrypt.generate_password_hash(data['new_password']).decode('utf-8')
+        cur.execute('UPDATE users SET password_hash = %s WHERE id = %s', (new_hash, session['user_id']))
+        conn.commit()
+        return jsonify({'success': True, 'message': 'Password changed successfully!'})
+    except Exception as e:
+        print(f"Change password error: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+    finally:
+        close_db(conn)
+
+
+@app.route('/api/setup-security', methods=['POST'])
+@login_required
+def setup_security():
+    conn = None
+    try:
+        data = request.json
+        conn = get_db()
+        cur = conn.cursor()
+        # Add columns if not exist
+        try:
+            cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS security_question TEXT")
+            cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS security_answer TEXT")
+            conn.commit()
+        except:
+            conn.rollback()
+        answer_hash = bcrypt.generate_password_hash(data['answer'].lower().strip()).decode('utf-8')
+        cur.execute('UPDATE users SET security_question = %s, security_answer = %s WHERE id = %s',
+                   (data['question'], answer_hash, session['user_id']))
+        conn.commit()
+        return jsonify({'success': True, 'message': 'Security question saved!'})
+    except Exception as e:
+        print(f"Setup security error: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+    finally:
+        close_db(conn)
+
+
+@app.route('/api/get-security-question', methods=['POST'])
+def get_security_question():
+    conn = None
+    try:
+        data = request.json
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute('SELECT security_question FROM users WHERE username = %s', (data['username'],))
+        user = cur.fetchone()
+        if not user:
+            return jsonify({'success': False, 'message': 'Username not found!'}), 404
+        if not user['security_question']:
+            return jsonify({'success': False, 'message': 'No security question set for this account!'}), 400
+        return jsonify({'success': True, 'question': user['security_question']})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+    finally:
+        close_db(conn)
+
+
+@app.route('/api/reset-password', methods=['POST'])
+def reset_password():
+    conn = None
+    try:
+        data = request.json
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM users WHERE username = %s', (data['username'],))
+        user = cur.fetchone()
+        if not user:
+            return jsonify({'success': False, 'message': 'Username not found!'}), 404
+        if not user['security_answer']:
+            return jsonify({'success': False, 'message': 'No security question set!'}), 400
+        if not bcrypt.check_password_hash(user['security_answer'], data['answer'].lower().strip()):
+            return jsonify({'success': False, 'message': 'Wrong answer!'}), 400
+        new_hash = bcrypt.generate_password_hash(data['new_password']).decode('utf-8')
+        cur.execute('UPDATE users SET password_hash = %s WHERE id = %s', (new_hash, user['id']))
+        conn.commit()
+        return jsonify({'success': True, 'message': 'Password reset successfully!'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+    finally:
+        close_db(conn)
+
+
+@app.route('/api/profile')
+@login_required
+def get_profile():
+    conn = None
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute('SELECT id, username, email, full_name, created_at, security_question FROM users WHERE id = %s', (session['user_id'],))
+        user = dict(cur.fetchone())
+        user['created_at'] = str(user['created_at'])
+        return jsonify({'success': True, 'user': user})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+    finally:
+        close_db(conn)
+
+
+@app.route('/api/verify-answer', methods=['POST'])
+def verify_answer():
+    conn = None
+    try:
+        data = request.json
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM users WHERE username = %s', (data['username'],))
+        user = cur.fetchone()
+        if not user:
+            return jsonify({'success': False, 'message': 'Username not found!'}), 404
+        if not user['security_answer']:
+            return jsonify({'success': False, 'message': 'No security question set!'}), 400
+        if not bcrypt.check_password_hash(user['security_answer'], data['answer'].lower().strip()):
+            return jsonify({'success': False, 'message': '❌ Wrong answer! Try again.'}), 400
+        session['reset_verified_user'] = user['id']
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+    finally:
+        close_db(conn)
+
+
+@app.route('/api/reset-password-verified', methods=['POST'])
+def reset_password_verified():
+    conn = None
+    try:
+        data = request.json
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute('SELECT id FROM users WHERE username = %s', (data['username'],))
+        user = cur.fetchone()
+        if not user:
+            return jsonify({'success': False, 'message': 'Username not found!'}), 404
+        if session.get('reset_verified_user') != user['id']:
+            return jsonify({'success': False, 'message': 'Please verify your answer first!'}), 400
+        new_hash = bcrypt.generate_password_hash(data['new_password']).decode('utf-8')
+        cur.execute('UPDATE users SET password_hash = %s WHERE id = %s', (new_hash, user['id']))
+        conn.commit()
+        session.pop('reset_verified_user', None)
+        return jsonify({'success': True, 'message': 'Password reset successfully!'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+    finally:
+        close_db(conn)
 
 if __name__ == '__main__':
     print("🚀 FinDash starting with PostgreSQL...")

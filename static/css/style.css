@@ -435,6 +435,14 @@ button[type="submit"]:hover, .sms-btn:hover, .add-btn:hover {
     font-weight: 700;
 }
 
+#chart1, #chart2 {
+    height: 300px;
+}
+
+#chart3 {
+    height: 350px;
+}
+
 /* ============================================
    TABLES
    ============================================ */
@@ -824,9 +832,27 @@ table tbody tr:hover {
     margin-top: 20px;
 }
 
-/* ============================================
-   DARK MODE
-   ============================================ */
+/* SMS Result Box */
+.sms-result-box {
+    border: 2px solid #4CAF50;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f0f9ff;
+}
+
+.sms-result-box h3 {
+    color: #27ae60;
+    margin-bottom: 10px;
+}
+
+.sms-result-box p {
+    margin: 8px 0;
+    color: #333;
+}
+
+.sms-result-box strong {
+    color: #1a1a1a;
+}
 
 /* ============================================
    DARK MODE - COMPLETELY FIXED
@@ -1146,10 +1172,15 @@ body.dark-mode .alert-item.danger {
     color: #f5b5b5;
 }
 
-/* Modal */
+/* Modal - DARK MODE FIX */
+body.dark-mode .modal {
+    background: rgba(0, 0, 0, 0.85);
+}
+
 body.dark-mode .modal-content {
     background: #1a1a1a;
-    border: 1px solid #333;
+    border: 1px solid #404040;
+    color: #f0f0f0;
 }
 
 body.dark-mode .modal-content h2 {
@@ -1164,348 +1195,46 @@ body.dark-mode .close:hover {
     color: #ffffff;
 }
 
-/* Buttons in Dark Mode */
-body.dark-mode .btn-theme {
-    background: #2a2a2a;
-    color: #ffffff;
-}
-
-body.dark-mode .btn-theme:hover {
-    background: #333;
-}/* ============================================
-   DARK MODE - COMPLETELY FIXED
-   ============================================ */
-
-body.dark-mode {
-    background: #0f0f0f;
-    color: #f0f0f0;
-}
-
-/* Header */
-body.dark-mode header {
-    background: #1a1a1a;
-    border: 1px solid #333;
-}
-
-body.dark-mode header h1 {
-    color: #ffffff;
-}
-
-body.dark-mode #username {
-    color: #ffffff;
-}
-
-/* Navigation Tabs */
-body.dark-mode .nav-tabs {
-    background: #1a1a1a;
-    border: 1px solid #333;
-}
-
-body.dark-mode .nav-tab {
-    color: #b0b0b0;
-}
-
-body.dark-mode .nav-tab:hover {
-    background: #2a2a2a;
-    color: #ffffff;
-}
-
-body.dark-mode .nav-tab.active {
-    background: #ffffff;
-    color: #1a1a1a;
-}
-
-/* Summary Cards */
-body.dark-mode .card {
-    background: #1a1a1a;
-    border-color: #333;
-}
-
-body.dark-mode .card h3 {
-    color: #b0b0b0;
-}
-
-body.dark-mode .card p {
-    color: #ffffff;
-}
-
-body.dark-mode .card.income p {
-    color: #4ade80;
-}
-
-body.dark-mode .card.expense p {
-    color: #f87171;
-}
-
-body.dark-mode .card.balance p {
-    color: #60a5fa;
-}
-
-body.dark-mode .card.health p {
-    color: #c084fc;
-}
-
-body.dark-mode .card.income:hover {
-    background: #1a2520;
-    border-color: #4ade80;
-}
-
-body.dark-mode .card.expense:hover {
-    background: #251a1a;
-    border-color: #f87171;
-}
-
-body.dark-mode .card.balance:hover {
-    background: #1a2025;
-    border-color: #60a5fa;
-}
-
-body.dark-mode .card.health:hover {
-    background: #201a25;
-    border-color: #c084fc;
-}
-
-/* Stats Section */
-body.dark-mode .stats-section {
-    background: #1a1a1a;
-    border-color: #333;
-}
-
-body.dark-mode .stats-section h2 {
-    color: #ffffff;
-}
-
-body.dark-mode .stat-box {
-    background: #252525;
-    border-color: #333;
-}
-
-body.dark-mode .stat-label {
-    color: #b0b0b0;
-}
-
-body.dark-mode .stat-value {
-    color: #ffffff;
-}
-
-body.dark-mode .stat-sub {
-    color: #888;
-}
-
-body.dark-mode .stat-box.highlight {
-    background: #ffffff;
-    color: #1a1a1a;
-}
-
-body.dark-mode .stat-box.highlight .stat-label {
-    color: #666;
-}
-
-body.dark-mode .stat-box.highlight .stat-value {
-    color: #1a1a1a;
-}
-
-/* Recommendations */
-body.dark-mode .rec-item {
-    background: #1a1a1a;
-    border-left-color: #ffffff;
-}
-
-body.dark-mode .rec-item.warning {
-    background: #2a2418;
-    border-left-color: #f39c12;
-    color: #f5d796;
-}
-
-body.dark-mode .rec-item.danger {
-    background: #2a1818;
-    border-left-color: #e74c3c;
-    color: #f5b5b5;
-}
-
-body.dark-mode .rec-item.info {
-    background: #182228;
-    border-left-color: #3498db;
-    color: #b5d9f5;
-}
-
-/* Forms */
-body.dark-mode .form-box {
-    background: #1a1a1a;
-    border-color: #333;
-}
-
-body.dark-mode .form-box h3 {
-    color: #ffffff;
-}
-
-body.dark-mode input,
-body.dark-mode select,
-body.dark-mode textarea {
+body.dark-mode .modal textarea,
+body.dark-mode #smsText {
     background: #252525;
     color: #f0f0f0;
-    border-color: #404040;
+    border: 2px solid #404040;
 }
 
-body.dark-mode input:focus,
-body.dark-mode select:focus,
-body.dark-mode textarea:focus {
-    border-color: #ffffff;
+body.dark-mode .modal textarea:focus,
+body.dark-mode #smsText:focus {
     background: #2a2a2a;
-}
-
-body.dark-mode input::placeholder,
-body.dark-mode textarea::placeholder {
-    color: #888;
-}
-
-/* Charts */
-body.dark-mode .chart-box {
-    background: #1a1a1a;
-    border-color: #333;
-}
-
-body.dark-mode .chart-box h3 {
-    color: #ffffff;
-}
-
-/* Tables */
-body.dark-mode .table-container {
-    background: #1a1a1a;
-    border-color: #333;
-}
-
-body.dark-mode table thead {
-    background: #ffffff;
-    color: #1a1a1a;
-}
-
-body.dark-mode table tbody {
-    background: #1a1a1a;
-}
-
-body.dark-mode table td {
-    border-bottom-color: #2a2a2a;
-    color: #f0f0f0;
-}
-
-body.dark-mode table tbody tr:hover {
-    background: #252525;
-}
-
-body.dark-mode .type-income {
-    color: #4ade80;
-}
-
-body.dark-mode .type-expense {
-    color: #f87171;
-}
-
-/* Transaction Summary */
-body.dark-mode .transaction-summary {
-    background: #1a1a1a;
-    border-color: #333;
-}
-
-body.dark-mode .summary-item span:first-child {
-    color: #b0b0b0;
-}
-
-body.dark-mode .summary-item span:last-child {
-    color: #ffffff;
-}
-
-/* Budgets */
-body.dark-mode .budget-item {
-    background: #1a1a1a;
-    border-color: #333;
-}
-
-body.dark-mode .budget-category {
-    color: #ffffff;
-}
-
-body.dark-mode .budget-limit {
-    color: #ffffff;
-}
-
-body.dark-mode .budget-details {
-    color: #b0b0b0;
-}
-
-body.dark-mode .budget-progress {
-    background: #2a2a2a;
-}
-
-/* Goals */
-body.dark-mode .goal-item {
-    background: #1a1a1a;
-    border-color: #404040;
-}
-
-body.dark-mode .goal-item:hover {
     border-color: #ffffff;
 }
 
-body.dark-mode .goal-item.goal-achieved {
-    background: #1a2520;
-    border-color: #4ade80;
+/* Dark Mode SMS Result */
+body.dark-mode .sms-result-box {
+    background: #252525 !important;
+    border-color: #4ade80 !important;
 }
 
-body.dark-mode .goal-name {
-    color: #ffffff;
+body.dark-mode .sms-result-box h3 {
+    color: #4ade80 !important;
 }
 
-body.dark-mode .goal-amount {
-    color: #ffffff;
+body.dark-mode .sms-result-box p {
+    color: #e0e0e0 !important;
 }
 
-body.dark-mode .goal-detail-label {
-    color: #b0b0b0;
+body.dark-mode .sms-result-box strong {
+    color: #ffffff !important;
 }
 
-body.dark-mode .goal-detail-value {
-    color: #ffffff;
+body.dark-mode .sms-result-box button,
+body.dark-mode #smsResult button {
+    background: #ffffff !important;
+    color: #1a1a1a !important;
 }
 
-body.dark-mode .goal-progress-bar {
-    background: #2a2a2a;
-}
-
-body.dark-mode .goal-bar {
-    background: #ffffff;
-    color: #1a1a1a;
-}
-
-/* Alerts */
-body.dark-mode .alert-item.warning {
-    background: #2a2418;
-    border-left-color: #f39c12;
-    color: #f5d796;
-}
-
-body.dark-mode .alert-item.danger {
-    background: #2a1818;
-    border-left-color: #e74c3c;
-    color: #f5b5b5;
-}
-
-/* Modal */
-body.dark-mode .modal-content {
-    background: #1a1a1a;
-    border: 1px solid #333;
-}
-
-body.dark-mode .modal-content h2 {
-    color: #ffffff;
-}
-
-body.dark-mode .close {
-    color: #b0b0b0;
-}
-
-body.dark-mode .close:hover {
-    color: #ffffff;
+body.dark-mode .sms-result-box button:hover,
+body.dark-mode #smsResult button:hover {
+    background: #e0e0e0 !important;
 }
 
 /* Buttons in Dark Mode */
@@ -1527,7 +1256,6 @@ body.dark-mode .btn-theme:hover {
         padding: 10px;
     }
     
-    /* Header - Mobile */
     header {
         flex-direction: column;
         gap: 12px;
@@ -1555,34 +1283,31 @@ body.dark-mode .btn-theme:hover {
         font-size: 0.85em;
     }
     
-    /* Navigation Tabs - FIXED FOR MOBILE */
     .nav-tabs {
         display: flex;
         overflow-x: auto;
         overflow-y: hidden;
         -webkit-overflow-scrolling: touch;
-        scrollbar-width: none; /* Firefox */
-        -ms-overflow-style: none; /* IE/Edge */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
         gap: 8px;
         padding: 8px;
         margin-bottom: 20px;
         white-space: nowrap;
     }
     
-    /* Hide scrollbar for Chrome, Safari */
     .nav-tabs::-webkit-scrollbar {
         display: none;
     }
     
     .nav-tab {
-        flex: 0 0 auto; /* Don't shrink, don't grow, auto width */
+        flex: 0 0 auto;
         min-width: 110px;
         padding: 12px 16px;
         font-size: 0.9em;
         white-space: nowrap;
     }
     
-    /* Summary Cards - 2 per row on mobile */
     .summary-cards {
         grid-template-columns: repeat(2, 1fr);
         gap: 12px;
@@ -1602,7 +1327,6 @@ body.dark-mode .btn-theme:hover {
         font-size: 1.4em;
     }
     
-    /* Stats Section */
     .stats-section {
         padding: 20px 15px;
     }
@@ -1633,13 +1357,11 @@ body.dark-mode .btn-theme:hover {
         font-size: 1.2em;
     }
     
-    /* Recommendations */
     .rec-item {
         padding: 12px 15px;
         font-size: 0.9em;
     }
     
-    /* Forms - Single column */
     .forms-section {
         grid-template-columns: 1fr;
         gap: 15px;
@@ -1654,7 +1376,7 @@ body.dark-mode .btn-theme:hover {
     }
     
     input, select, textarea {
-        font-size: 16px; /* Prevents zoom on iOS */
+        font-size: 16px;
         padding: 12px;
     }
     
@@ -1663,7 +1385,6 @@ body.dark-mode .btn-theme:hover {
         padding: 13px;
     }
     
-    /* Charts - 2 per row */
     .charts-section {
         grid-template-columns: repeat(2, 1fr);
         gap: 12px;
@@ -1692,7 +1413,6 @@ body.dark-mode .btn-theme:hover {
         height: 250px !important;
     }
     
-    /* Tables - Horizontal scroll */
     .controls {
         flex-direction: column;
         gap: 10px;
@@ -1719,7 +1439,6 @@ body.dark-mode .btn-theme:hover {
         padding: 10px 8px;
     }
     
-    /* Transaction Summary */
     .transaction-summary {
         flex-direction: column;
         gap: 10px;
@@ -1743,7 +1462,6 @@ body.dark-mode .btn-theme:hover {
         font-size: 1.3em;
     }
     
-    /* Budgets */
     .budget-item {
         padding: 15px;
     }
@@ -1758,7 +1476,6 @@ body.dark-mode .btn-theme:hover {
         font-size: 1.1em;
     }
     
-    /* Goals */
     .goal-item {
         padding: 20px 15px;
     }
@@ -1799,13 +1516,11 @@ body.dark-mode .btn-theme:hover {
         width: 100%;
     }
     
-    /* Alerts */
     .alert-item {
         padding: 12px 15px;
         font-size: 0.9em;
     }
     
-    /* Modal */
     .modal-content {
         width: 95%;
         padding: 25px 20px;
@@ -1817,7 +1532,21 @@ body.dark-mode .btn-theme:hover {
     }
 }
 
-/* Extra small phones (< 400px) */
+
+    /* Analytics Page Mobile */
+    #heatmapChart {
+        flex-wrap: wrap;
+    }
+    #heatmapChart > div {
+        min-width: calc(50% - 10px) !important;
+        flex: none !important;
+    }
+    #analyticsChart1, #categoryChart {
+        height: 250px !important;
+    }
+    .stats-section h3 {
+        font-size: 1em;
+    }
 @media screen and (max-width: 400px) {
     header h1 {
         font-size: 1.3em;
@@ -1850,7 +1579,6 @@ body.dark-mode .btn-theme:hover {
     }
 }
 
-/* Landscape mode on mobile */
 @media screen and (max-width: 768px) and (orientation: landscape) {
     .summary-cards {
         grid-template-columns: repeat(4, 1fr);
@@ -1861,12 +1589,11 @@ body.dark-mode .btn-theme:hover {
     }
 }
 
-/* Touch device improvements */
 @media (hover: none) and (pointer: coarse) {
     button,
     .nav-tab,
     a,
     input[type="submit"] {
-        min-height: 44px; /* Apple's recommended touch target size */
+        min-height: 44px;
     }
 }
