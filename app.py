@@ -138,17 +138,14 @@ def add_expense():
     conn = None
     try:
         data = request.json
-        dt = datetime.strptime(data['date'], '%Y-%m-%d')
-        day_type = 'weekend' if dt.weekday() >= 5 else 'weekday'
-        
         conn = get_db()
         c = conn.cursor()
         
         c.execute('''
-            INSERT INTO expenses (category, amount, description, date, day_type, user_id) 
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO expenses (category, amount, description, date, user_id) 
+            VALUES (%s, %s, %s, %s, %s)
         ''', (data['category'], float(data['amount']), data.get('description', ''), 
-              data['date'], day_type, session['user_id']))
+              data['date'], session['user_id']))
         
         conn.commit()
         return jsonify({'success': True})
