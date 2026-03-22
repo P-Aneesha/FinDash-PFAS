@@ -349,11 +349,23 @@ function filterTransactions() {
 
 function exportTransactions() {
     if (allTransactions.length === 0) { alert('No transactions to export!'); return; }
-    let csv = 'Date,Type,Description,Amount\n';
+    let csv = 'Date,Time,Type,Description,Amount\n';
     allTransactions.forEach(t => {
-        csv += `${t.date},${t.type},"${t.description}",${t.amount}\n`;
+        let timeStr = 'N/A';
+        try {
+            if (t.created_at) {
+                const createdAt = new Date(t.created_at.replace(' ', 'T') + 'Z');
+                if (!isNaN(createdAt.getTime())) {
+                    timeStr = createdAt.toLocaleTimeString('en-IN', {
+                        hour: '2-digit', minute: '2-digit',
+                        hour12: true, timeZone: 'Asia/Kolkata'
+                    });
+                }
+            }
+        } catch(e) {}
+        csv += `"${t.date}","${timeStr}","${t.type}","${t.description}",${t.amount}\n`;
     });
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -857,7 +869,6 @@ async function checkSecurityQuestion() {
         if (!data.success) return;
 
         if (!data.user.security_question) {
-            // Show reminder toast every time until set
             setTimeout(() => {
                 showToast(
                     '🛡️',
@@ -866,20 +877,6 @@ async function checkSecurityQuestion() {
                     'warning'
                 );
             }, 2000);
-
-            // Show again after 30 seconds if still on page
-            setTimeout(async () => {
-                const res2 = await fetch('/api/profile');
-                const data2 = await res2.json();
-                if (data2.success && !data2.user.security_question) {
-                    showToast(
-                        '⚠️',
-                        'Reminder: Security Question',
-                        'You still have not set your security question! Click Profile tab to set it.',
-                        'danger'
-                    );
-                }
-            }, 30000);
         }
     } catch (e) {
         console.error('Security check error:', e);
