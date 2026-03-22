@@ -370,5 +370,44 @@
     </div>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <script>
+        // PWA Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/service-worker.js')
+                    .then(reg => console.log('✅ Service Worker registered'))
+                    .catch(err => console.log('❌ Service Worker failed:', err));
+            });
+        }
+
+        // Install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBtn = document.createElement('button');
+            installBtn.textContent = '📱 Install App';
+            installBtn.id = 'installBtn';
+            installBtn.style.cssText = 'position:fixed;bottom:20px;right:20px;padding:15px 25px;background:#27ae60;color:white;border:none;border-radius:50px;font-weight:bold;cursor:pointer;z-index:1000;box-shadow:0 4px 15px rgba(0,0,0,0.3);font-size:1em;';
+            installBtn.onclick = () => {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((result) => {
+                    if (result.outcome === 'accepted') {
+                        console.log('App installed!');
+                    }
+                    deferredPrompt = null;
+                    installBtn.remove();
+                });
+            };
+            document.body.appendChild(installBtn);
+        });
+
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ App installed successfully!');
+            const btn = document.getElementById('installBtn');
+            if (btn) btn.remove();
+        });
+    </script>
 </body>
 </html>
