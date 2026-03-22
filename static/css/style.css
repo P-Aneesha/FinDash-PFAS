@@ -1533,7 +1533,6 @@ body.dark-mode .btn-theme:hover {
 }
 
 
-
     /* Analytics Page Mobile */
     #heatmapChart {
         flex-wrap: wrap;
@@ -1597,4 +1596,117 @@ body.dark-mode .btn-theme:hover {
     input[type="submit"] {
         min-height: 44px;
     }
+}
+
+/* ============================================
+   DARK MODE FIXES - PROFILE & ANALYTICS
+   ============================================ */
+
+/* Profile info cards */
+body.dark-mode #profileInfo > div > div {
+    background: #2a2a2a !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode #profileInfo > div > div div[style*="font-size:0.85em"] {
+    color: #b0b0b0 !important;
+}
+
+body.dark-mode #profileInfo > div > div div[style*="font-size:1"] {
+    color: #ffffff !important;
+}
+
+/* Heatmap boxes */
+body.dark-mode #heatmapChart > div {
+    color: #ffffff !important;
+}
+
+body.dark-mode #heatmapChart > div div {
+    color: #ffffff !important;
+}
+
+/* Heatmap zero spending boxes in dark mode */
+body.dark-mode #heatmapChart > div[style*="f0f0f0"] {
+    background: #2a2a2a !important;
+}
+
+/* Weekly pattern bars */
+body.dark-mode #weeklyPattern > div > div {
+    color: #ffffff !important;
+}
+
+body.dark-mode #weeklyPattern > div > div > div[style*="f0f0f0"] {
+    background: #2a2a2a !important;
+}
+
+/* Analytics charts background */
+body.dark-mode #analyticsChart1,
+body.dark-mode #categoryChart {
+    background: transparent !important;
+}
+
+/* Weekday weekend cards already have colored backgrounds - fix text */
+body.dark-mode #weekdayWeekendCards > div > div {
+    color: #ffffff !important;
+}
+
+body.dark-mode #weekdayWeekendCards > div[style*="f8f9fa"] {
+    background: #2a2a2a !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode #weekdayWeekendCards > div > div[style*="555"] {
+    color: #cccccc !important;
+}
+
+/* Notifications page */
+body.dark-mode #notificationsList > div {
+    background: #2a2a2a !important;
+    border-left-color: inherit;
+}
+
+body.dark-mode #notificationsList > div div[style*="1a1a1a"] {
+    color: #ffffff !important;
+}
+
+body.dark-mode #notificationsList > div div[style*="555"] {
+    color: #cccccc !important;
+}
+
+body.dark-mode #notificationsList > div div[style*="999"] {
+    color: #888888 !important;
+}
+
+/* Achievement grid in dark mode */
+body.dark-mode #achievementsList > div > div[style*="f0f0f0"] {
+    background: #2a2a2a !important;
+}
+
+/* Stats section in dark mode */
+body.dark-mode .stats-section h3 {
+    color: #ffffff;
+}
+
+/* Change password section */
+body.dark-mode #profile .form-box {
+    background: #1a1a1a;
+}
+
+/* Profile page h2 */
+body.dark-mode #profile h2 {
+    color: #ffffff;
+}
+
+/* Mobile Transaction Summary Dark Mode Fix */
+body.dark-mode .summary-item {
+    background: #2a2a2a !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .summary-item span:first-child {
+    color: #b0b0b0 !important;
+}
+
+body.dark-mode .summary-item span:last-child {
+    color: #ffffff !important;
 }

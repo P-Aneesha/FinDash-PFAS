@@ -658,7 +658,8 @@ async function loadHeatmap() {
         container.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap;padding:10px 0;';
         data.heatmap.forEach(d => {
             const intensity = d.total / max;
-            const color = d.total === 0 ? '#f0f0f0' : `rgba(231,76,60,${0.2 + intensity * 0.8})`;
+            const isDark = document.body.classList.contains('dark-mode');
+        const color = d.total === 0 ? (isDark ? '#2a2a2a' : '#f0f0f0') : `rgba(231,76,60,${0.2 + intensity * 0.8})`;
             const textColor = intensity > 0.5 ? 'white' : '#333';
             const box = document.createElement('div');
             box.style.cssText = `flex:1;min-width:100px;padding:20px 10px;background:${color};border-radius:10px;text-align:center;`;
@@ -732,7 +733,7 @@ async function loadWeekdayWeekend() {
                         <div style="margin-top:12px;background:rgba(255,255,255,0.2);border-radius:8px;padding:4px 12px;display:inline-block;font-size:0.85em;">${wePct}% of total</div>
                     </div>
                 </div>
-                <div style="background:#f8f9fa;border-radius:12px;padding:15px;text-align:center;">
+                <div style="background:var(--bg,#f8f9fa);border-radius:12px;padding:15px;text-align:center;">
                     <div style="display:flex;border-radius:8px;overflow:hidden;height:20px;margin-bottom:10px;">
                         <div style="width:${wdPct}%;background:#3498db;transition:width 0.5s;"></div>
                         <div style="width:${wePct}%;background:#e67e22;transition:width 0.5s;"></div>
@@ -897,17 +898,17 @@ async function loadProfile() {
         const created = new Date(u.created_at).toLocaleDateString('en-IN', {day:'numeric',month:'long',year:'numeric'});
         container.innerHTML = `
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;padding:10px 0;">
-                <div style="background:#f8f9fa;border-radius:12px;padding:20px;text-align:center;">
+                <div style="background:var(--card-bg,#f8f9fa);border-radius:12px;padding:20px;text-align:center;">
                     <div style="font-size:3em;margin-bottom:10px;">👤</div>
                     <div style="font-size:0.85em;color:#888;margin-bottom:4px;">USERNAME</div>
                     <div style="font-size:1.2em;font-weight:700;">${u.username}</div>
                 </div>
-                <div style="background:#f8f9fa;border-radius:12px;padding:20px;text-align:center;">
+                <div style="background:var(--card-bg,#f8f9fa);border-radius:12px;padding:20px;text-align:center;">
                     <div style="font-size:3em;margin-bottom:10px;">📧</div>
                     <div style="font-size:0.85em;color:#888;margin-bottom:4px;">EMAIL</div>
                     <div style="font-size:1.1em;font-weight:700;">${u.email || 'Not set'}</div>
                 </div>
-                <div style="background:#f8f9fa;border-radius:12px;padding:20px;text-align:center;">
+                <div style="background:var(--card-bg,#f8f9fa);border-radius:12px;padding:20px;text-align:center;">
                     <div style="font-size:3em;margin-bottom:10px;">📅</div>
                     <div style="font-size:0.85em;color:#888;margin-bottom:4px;">MEMBER SINCE</div>
                     <div style="font-size:1.1em;font-weight:700;">${created}</div>
