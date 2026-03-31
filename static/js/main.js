@@ -363,7 +363,10 @@ function exportTransactions() {
                 }
             }
         } catch(e) {}
-        csv += `"${t.date}","${timeStr}","${t.type}","${t.description}",${t.amount}\n`;
+        // Convert date from YYYY-MM-DD to DD-MM-YYYY
+        const dateParts = t.date.split('-');
+        const formattedDate = dateParts.length === 3 ? `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}` : t.date;
+        csv += `"${formattedDate}","${timeStr}","${t.type}","${t.description}",${t.amount}\n`;
     });
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
