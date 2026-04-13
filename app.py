@@ -14,7 +14,7 @@ bcrypt = Bcrypt(app)
 
 def get_db():
     # Use Render's PostgreSQL database directly
-    DATABASE_URL = 'postgresql://findash_user:FJE5YrxJCRvcS7ovmOUEyVIydhF3C3Vg@dpg-d6o0vb94tr6s73eer1vg-a.singapore-postgres.render.com/findash_db_bzrx'
+    DATABASE_URL = 'postgresql://findash_user:a1FrpDSnEKRwtmFpLF03ZZ8n5XhkrI8b@dpg-d7dta79kh4rs73a19a2g-a.singapore-postgres.render.com/findash_db_vzgj'
     
     conn = psycopg2.connect(DATABASE_URL)
     conn.cursor_factory = psycopg2.extras.RealDictCursor
